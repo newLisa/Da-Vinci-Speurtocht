@@ -7,6 +7,8 @@ import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -24,6 +26,7 @@ import java.util.ArrayList;
 
 public class DatabaseListActivity extends ListActivity
 {
+    public static ArrayList arList;
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -31,51 +34,72 @@ public class DatabaseListActivity extends ListActivity
         setContentView(R.layout.activity_database_list);
 
 
-//        setListAdapter(new ArrayAdapter(
-//                this,android.R.layout.simple_list_item_1
-//                ,this.populate()));
         BackgroundTask bk = new BackgroundTask();
-        bk.execute();
+        bk.execute("http://hiragraphics.com/api.php");
+
+
+
     }
 
-    private ArrayList populate()
+    public class BackgroundTask extends AsyncTask<String, String, ArrayList>
     {
-       ArrayList items = new ArrayList();
-        try
-        {
-            URL url = new URL("http://localhost/speurtocht/index.php");
 
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-            BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(urlConnection.getInputStream()));
+        @Override
+        protected ArrayList doInBackground(String... urlString) {
+            ArrayList items = new ArrayList();
 
-            String next;
-
-            while ((next = bufferedReader.readLine()) != null)
+            try
             {
-                JSONArray ja = new JSONArray(next);
+                URL url = new URL(urlString[0]);
 
-                for (int i = 0; i < ja.length(); i++)
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+                BufferedReader bufferedReader = new BufferedReader(
+                        new InputStreamReader(urlConnection.getInputStream()));
+
+                String next;
+
+                while ((next = bufferedReader.readLine()) != null)
                 {
-                    JSONObject jo = (JSONObject) ja.get(i);
-                    items.add(jo.getString("id"));
+                    JSONArray ja = new JSONArray(next);
+
+                    for (int i = 0; i < ja.length(); i++)
+                    {
+                        JSONObject jo = (JSONObject) ja.get(i);
+                        items.add(jo.getString("Latitude"));
+                    }
                 }
+            }catch(MalformedURLException e)
+            {
+                e.printStackTrace();
             }
-        }catch(MalformedURLException e)
-        {
-            e.printStackTrace();
+            catch(IOException e)
+            {
+                e.printStackTrace();
+            }
+            catch(JSONException e)
+            {
+                e.printStackTrace();
+            }
+            return items;
         }
-        catch(IOException e)
-        {
-            e.printStackTrace();
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
         }
-        catch(JSONException e)
-        {
-            e.printStackTrace();
+
+        @Override
+        protected void onPostExecute(ArrayList result) {
+            setListAdapter(new ArrayAdapter(DatabaseListActivity.this,android.R.layout.simple_list_item_1,result));
+
         }
-        return items;
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+        }
     }
 }
 
