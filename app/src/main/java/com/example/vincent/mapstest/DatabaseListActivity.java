@@ -86,12 +86,14 @@ public class DatabaseListActivity extends ListActivity
         }
 
         @Override
-        protected void onPreExecute() {
+        protected void onPreExecute()
+        {
             super.onPreExecute();
         }
 
         @Override
-        protected void onPostExecute(ArrayList result) {
+        protected void onPostExecute(ArrayList result)
+        {
             setListAdapter(new ArrayAdapter(DatabaseListActivity.this,android.R.layout.simple_list_item_1,result));
 
         }

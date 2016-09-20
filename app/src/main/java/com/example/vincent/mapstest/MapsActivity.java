@@ -2,10 +2,12 @@ package com.example.vincent.mapstest;
 
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -19,13 +21,26 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback ,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
 {
 
     private GoogleMap mMap;
     GoogleApiClient mGoogleApiClient;
-    Button markerButton;
+    Button markerButton, speurtochtButton;
     int markerCount = 1;
+    ArrayList markerLocations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -43,7 +58,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mapFragment.getMapAsync(this);
 
-        markerButton = (Button) findViewById(R.id.markerButton);
+        markerButton = (Button) findViewById(R.id.currentLocMarkerButton);
         markerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)
@@ -52,7 +67,36 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+        speurtochtButton = (Button) findViewById(R.id.getSpeurtochButton);
+        speurtochtButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                GetSpeurtocht();
+            }
+        });
 
+
+    }
+
+    public void GetSpeurtocht()
+    {
+        GetSpeurtochtJsonData gs = new GetSpeurtochtJsonData();
+        gs.execute();
+    }
+
+    public void PlaceMarkers()
+    {
+        for (int i = 0; i < markerLocations.size(); i++)
+        {
+            MarkerOptions options = new MarkerOptions();
+
+            options.position((LatLng)markerLocations.get(i));
+            options.title("marker #" + i);
+            options.snippet("speurtocht 1");
+            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.da_vinci_logo));
+            mMap.addMarker(options);
+        }
     }
 
     //Sets  marker at the users current location
@@ -136,5 +180,73 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     {
 
     }
+
+    public class GetSpeurtochtJsonData extends AsyncTask<String, String, ArrayList>
+    {
+
+        @Override
+        protected ArrayList doInBackground(String... urlString) {
+
+           ArrayList locations = new ArrayList<ArrayList>();
+
+            try
+            {
+                URL url = new URL("http://hiragraphics.com/api.php");
+
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+                BufferedReader bufferedReader = new BufferedReader(
+                        new InputStreamReader(urlConnection.getInputStream()));
+
+                String next;
+
+                while ((next = bufferedReader.readLine()) != null)
+                {
+                    JSONArray ja = new JSONArray(next);
+
+                    for (int i = 0; i < ja.length(); i++)
+                    {
+                        JSONObject jo = (JSONObject) ja.get(i);
+                        LatLng latlng = new LatLng(Double.parseDouble(jo.getString("Latitude").toString()),Double.parseDouble(jo.getString("Longtitude").toString()));
+
+                        locations.add(latlng);
+                    }
+                }
+            }catch(MalformedURLException e)
+            {
+                e.printStackTrace();
+            }
+            catch(IOException e)
+            {
+                e.printStackTrace();
+            }
+            catch(JSONException e)
+            {
+                e.printStackTrace();
+            }
+
+            return locations;
+        }
+
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList locations)
+        {
+            markerLocations = locations;
+            PlaceMarkers();
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+        }
+    }
 }
+
 
