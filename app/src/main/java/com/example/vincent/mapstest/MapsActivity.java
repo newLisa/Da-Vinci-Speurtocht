@@ -92,7 +92,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             MarkerOptions options = new MarkerOptions();
 
             options.position((LatLng)markerLocations.get(i));
-            options.title("marker #" + i);
+            options.title("marker #" + (i+1));
             options.snippet("speurtocht 1");
             options.icon(BitmapDescriptorFactory.fromResource(R.drawable.da_vinci_logo));
             mMap.addMarker(options);

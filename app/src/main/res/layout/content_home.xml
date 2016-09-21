@@ -35,5 +35,16 @@
         android:text="Database"
         android:id="@+id/databaseButton"/>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="QR Scanner"
+        android:id="@+id/QRScanButton"
+        android:layout_below="@+id/databaseButton"
+        android:layout_alignRight="@+id/databaseButton"
+        android:layout_alignEnd="@+id/databaseButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"/>
+
 
 </RelativeLayout>

@@ -33,17 +33,12 @@ public class DatabaseListActivity extends ListActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_database_list);
 
-
         BackgroundTask bk = new BackgroundTask();
         bk.execute("http://hiragraphics.com/api.php");
-
-
-
     }
 
     public class BackgroundTask extends AsyncTask<String, String, ArrayList>
     {
-
         @Override
         protected ArrayList doInBackground(String... urlString) {
             ArrayList items = new ArrayList();
