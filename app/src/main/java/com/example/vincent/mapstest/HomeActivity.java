@@ -48,8 +48,6 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View view)
             {
 
-
-
                 Intent i = new Intent(getApplicationContext(),QRScanActivity.class);
                 startActivity(i);
             }
