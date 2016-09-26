@@ -30,7 +30,7 @@ public class HomeActivity extends AppCompatActivity {
                 }
                 return;
             }
-            // je kan hier nog checken voor andere permissions
+            // If we need to check for other permissions, then this is the place to be
 
         }
     }
