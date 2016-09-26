@@ -30,7 +30,7 @@ public class HomeActivity extends AppCompatActivity {
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 } else {
-                    Toast.makeText(HomeActivity.this, "Toegang tot locatie geweigerd. De app werkt niet zonder een locatie.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(HomeActivity.this, R.string.error_location_refused, Toast.LENGTH_LONG).show();
                     Intent i = new Intent(getApplicationContext(),HomeActivity.class);
                     startActivity(i);
                 }

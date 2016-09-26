@@ -42,13 +42,13 @@ public class QRScanActivity extends AppCompatActivity implements ZXingScannerVie
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 } else {
-                    Toast.makeText(QRScanActivity.this, "Toegang tot camera geweigerd. Het scannen van QR codes werkt niet zonder toegang tot de camera.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(QRScanActivity.this, R.string.error_camera_refused, Toast.LENGTH_LONG).show();
                     Intent i = new Intent(getApplicationContext(),HomeActivity.class);
                     startActivity(i);
                 }
                 return;
             }
-            // je kan hier nog checken voor andere permissions
+            // You can check for other permissions
         }
     }
 
