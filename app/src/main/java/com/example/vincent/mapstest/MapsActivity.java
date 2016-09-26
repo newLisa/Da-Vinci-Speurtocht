@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -44,6 +45,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     GoogleApiClient mGoogleApiClient;
     Button markerButton, speurtochtButton;
+    FloatingActionButton qrButton;
     int markerCount = 1;
     ArrayList markerLocations;
 
@@ -75,6 +77,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 SetMarkerAtCurrentLocation();
             }
         });
+        qrButton = (FloatingActionButton) findViewById(R.id.floatingQRbutton);
+        qrButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                Intent i = new Intent(getApplicationContext(),QRScanActivity.class);
+                startActivity(i);
+            }
+        });
+
 
         speurtochtButton = (Button) findViewById(R.id.getSpeurtochButton);
         speurtochtButton.setOnClickListener(new View.OnClickListener() {
