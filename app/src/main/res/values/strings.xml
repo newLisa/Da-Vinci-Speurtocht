@@ -1,5 +1,6 @@
 <resources>
-    <string name="app_name">Quest</string>
+    <string name="package_name">com.davinci.quest</string>
+    <string name="app_name">Davinci Quest</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_main">MainActivity</string>

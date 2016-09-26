@@ -1,15 +1,9 @@
-package com.example.vincent.mapstest;
+package nl.davinci.davinciquest;
 
 import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
-import android.os.StrictMode;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
-import android.widget.SimpleAdapter;
-import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,8 +15,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
+
 
 public class DatabaseListActivity extends ListActivity
 {

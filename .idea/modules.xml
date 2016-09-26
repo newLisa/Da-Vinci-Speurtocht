@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/DavinciSpeurtocht.iml" filepath="$PROJECT_DIR$/DavinciSpeurtocht.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Da-Vinci-Speurtocht.iml" filepath="$PROJECT_DIR$/Da-Vinci-Speurtocht.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

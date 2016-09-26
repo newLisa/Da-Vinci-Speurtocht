@@ -1,4 +1,4 @@
-package com.example.vincent.mapstest;
+package nl.davinci.davinciquest;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -7,11 +7,9 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.Toast;
 
-import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
