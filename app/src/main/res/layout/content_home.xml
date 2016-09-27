@@ -9,13 +9,13 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.example.vincent.mapstest.HomeActivity"
+    tools:context="nl.davinci.davinciquest.HomeActivity"
     tools:showIn="@layout/activity_home">
 
     <Button
         android:layout_width="200dp"
         android:layout_height="50dp"
-        android:text="Database"
+        android:text="@string/database"
         android:id="@+id/databaseButton"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
@@ -24,7 +24,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="QR Scanner"
+        android:text="@string/qr_scanner"
         android:id="@+id/QRScanButton"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
@@ -34,7 +34,7 @@
     <Button
         android:layout_width="200dp"
         android:layout_height="50dp"
-        android:text="kaart"
+        android:text="@string/map"
         android:id="@+id/mapButton"
         android:layout_above="@+id/databaseButton"
         android:layout_alignParentLeft="true"
@@ -43,7 +43,7 @@
         android:layout_alignParentEnd="true" />
 
     <Button
-        android:text="Join"
+        android:text="@string/field_confirm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/button2"
@@ -56,7 +56,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="number"
-        android:hint="Voer speurtocht ID in"
+        android:hint="@string/field_enter_id"
         android:ems="10"
         android:id="@+id/editText"
         android:layout_alignParentTop="true"
@@ -66,7 +66,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Debugging menu"
+        android:text="@string/debugging_menu"
         android:id="@+id/textView"
         android:layout_above="@+id/mapButton"
         android:layout_alignParentLeft="true"

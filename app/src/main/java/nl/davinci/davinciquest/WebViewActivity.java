@@ -1,4 +1,4 @@
-package com.example.vincent.mapstest;
+package nl.davinci.davinciquest;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,7 +18,7 @@ public class WebViewActivity extends AppCompatActivity
         webView = (WebView)findViewById(R.id.qrWebView);
         webView.setWebViewClient(new WebViewClient());
 
-       Bundle extras = getIntent().getExtras();
+        Bundle extras = getIntent().getExtras();
 
         if (extras != null)
         {

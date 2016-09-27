@@ -1,15 +1,9 @@
-package com.example.vincent.mapstest;
+package nl.davinci.davinciquest;
 
-import android.*;
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -36,7 +30,7 @@ public class HomeActivity extends AppCompatActivity {
                 }
                 return;
             }
-            // je kan hier nog checken voor andere permissions
+            // If we need to check for other permissions, then this is the place to be
 
         }
     }
@@ -60,7 +54,7 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-       Button databaseButton = (Button) findViewById(R.id.databaseButton);
+        Button databaseButton = (Button) findViewById(R.id.databaseButton);
         databaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)
