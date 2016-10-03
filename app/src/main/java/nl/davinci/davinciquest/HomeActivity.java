@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -74,7 +75,9 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
+
     }
+
 
 
     @Override
