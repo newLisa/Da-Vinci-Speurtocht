@@ -64,18 +64,6 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
-
-        Button qrButton = (Button) findViewById(R.id.QRScanButton);
-        qrButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view)
-            {
-
-                Intent i = new Intent(getApplicationContext(),QRScanActivity.class);
-                startActivity(i);
-            }
-        });
-
     }
 
 

@@ -28,7 +28,7 @@ public class DatabaseListActivity extends ListActivity
         setContentView(R.layout.activity_database_list);
 
         BackgroundTask bk = new BackgroundTask();
-        bk.execute("http://hiragraphics.com/api.php");
+        bk.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/marker");
     }
 
     public class BackgroundTask extends AsyncTask<String, String, ArrayList>
@@ -56,7 +56,7 @@ public class DatabaseListActivity extends ListActivity
                     for (int i = 0; i < ja.length(); i++)
                     {
                         JSONObject jo = (JSONObject) ja.get(i);
-                        items.add(jo.getString("Latitude"));
+                        items.add(jo.getString("latitude"));
                     }
                 }
             }catch(MalformedURLException e)
