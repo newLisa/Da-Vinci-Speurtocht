@@ -31,4 +31,7 @@
     <!-- Strings related to permissions -->
     <string name="error_location_refused">Acces to location denied.This app doesn\'t work without location enabled.</string>
     <string name="error_camera_refused">Acces to camera denied. The QR scanner will not work without the camera permission enabled.</string>
+
+    <string name="dickname"></string>
+    <string name="defaultDickname">no</string>
 </resources>

@@ -1,10 +1,13 @@
 package nl.davinci.davinciquest;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -21,6 +24,11 @@ import java.util.Random;
 
 public class HomeActivity extends AppCompatActivity {
 
+
+    SharedPreferences sp;
+    SharedPreferences.Editor e;
+    String defaultDickname;
+    String dickname;
     String m_Text;
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -38,7 +46,15 @@ public class HomeActivity extends AppCompatActivity {
 
 
                 }
-                ShowNickNameDialog();
+
+                defaultDickname = getResources().getString(R.string.defaultDickname);
+                dickname = sp.getString(getString(R.string.dickname), defaultDickname);
+
+                if (defaultDickname == "no")   {
+                    ShowNickNameDialog();
+                }
+                boolean user = true;
+
                 return;
             }
             // If we need to check for other permissions, then this is the place to be
@@ -62,7 +78,14 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 m_Text = input.getText().toString();
+
+                if(!m_Text.isEmpty()) { // save the fields if NOT empty
+                    e.putString(getString(R.string.dickname), m_Text);
+                    e.commit(); // you forgot to commit
+                }
                 GeneratePIN();
+
+
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -83,8 +106,13 @@ public class HomeActivity extends AppCompatActivity {
         Random r = new Random();
         int i = r.nextInt(max - min + 1) + min;
 
+
+        defaultDickname = getResources().getString(R.string.defaultDickname);
+        dickname = sp.getString(getString(R.string.dickname), defaultDickname);
+
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(Integer.toString(i));
+        builder.setTitle(dickname);
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -124,6 +152,10 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
+
+        sp = PreferenceManager.getDefaultSharedPreferences(this); // forget about
+        // named preferences - get the default ones and finish with it
+        e = sp.edit();
     }
 
 
