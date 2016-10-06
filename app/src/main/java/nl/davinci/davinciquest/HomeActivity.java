@@ -17,6 +17,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.util.Random;
+
 public class HomeActivity extends AppCompatActivity {
 
     String m_Text;
@@ -47,7 +49,7 @@ public class HomeActivity extends AppCompatActivity {
     void ShowNickNameDialog()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Title");
+        builder.setTitle("Kies Nickname");
 
 // Set up the input
         final EditText input = new EditText(this);
@@ -60,8 +62,29 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 m_Text = input.getText().toString();
+                GeneratePIN();
             }
         });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    void GeneratePIN()
+    {
+        int min = 1000;
+        int max = 9999;
+
+        Random r = new Random();
+        int i = r.nextInt(max - min + 1) + min;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(Integer.toString(i));
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
