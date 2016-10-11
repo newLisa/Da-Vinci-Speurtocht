@@ -52,10 +52,12 @@
         android:id="@+id/editText"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:maxLength="4"
+        android:gravity="center"/>
 
     <Button
-        android:text="Show PIN and Nickname"
+        android:text="Bekijk PIN en Nickname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/PinButton"

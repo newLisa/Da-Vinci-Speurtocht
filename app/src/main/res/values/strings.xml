@@ -18,7 +18,7 @@
     <string name="permission_rationale">Contacts permissions are needed for providing email completions.</string>
 
     <!-- Homescreen -->
-    <string name="field_enter_id">Enter the ID of the quest</string>
+    <string name="field_enter_id">Quest ID</string>
     <string name="field_confirm">Join</string>
 
     <!-- Debugging menu -->

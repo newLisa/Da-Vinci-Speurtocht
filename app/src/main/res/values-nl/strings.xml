@@ -12,7 +12,7 @@
     <string name="error_invalid_password">Dit wachtwoord is te kort</string>
     <string name="error_location_refused">Toegang tot locatie geweigerd. De app werkt niet zonder toegang tot je locatie.</string>
     <string name="field_confirm">Join</string>
-    <string name="field_enter_id">Voer het ID van de speurtocht in</string>
+    <string name="field_enter_id">Speurtocht ID</string>
     <string name="map">Kaart</string>
     <string name="qr_scanner">QR Scanner</string>
     <string name="prompt_password">Wachtwoord (optioneel)</string>
