@@ -26,6 +26,7 @@ public class HomeActivity extends AppCompatActivity {
 
     String nickname;
     String m_Text;
+    int pin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +35,9 @@ public class HomeActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+
+        nickname = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("NickName", "Anonymous");
+        pin = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("PIN", Integer.toString(0000)));
 
         Button mapBut = (Button) findViewById(R.id.mapButton);
         mapBut.setOnClickListener(new View.OnClickListener() {
@@ -55,7 +59,26 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-        nickname = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("NickName", "Anonymous");
+        Button pinButton = (Button) findViewById(R.id.PinButton);
+        pinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
+                builder.setTitle(nickname);
+                builder.setMessage(Integer.toString(pin));
+                builder.setNegativeButton("OK", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
+            }
+        });
+
         if (nickname.equals("Anonymous"))
         {
             ShowNickNameDialog();
@@ -129,12 +152,15 @@ public class HomeActivity extends AppCompatActivity {
         int max = 9999;
 
         Random r = new Random();
-        int i = r.nextInt(max - min + 1) + min;
+        pin = r.nextInt(max - min + 1) + min;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(nickname);
-        builder.setMessage(Integer.toString(i));
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+        builder.setMessage(Integer.toString(pin));
+
+        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("PIN", Integer.toString(pin)).commit();
+
+        builder.setNegativeButton("OK", new DialogInterface.OnClickListener()
         {
             @Override
             public void onClick(DialogInterface dialog, int which) {
