@@ -24,104 +24,8 @@ import java.util.Random;
 
 public class HomeActivity extends AppCompatActivity {
 
-
-    SharedPreferences sp;
-    SharedPreferences.Editor e;
-    String defaultDickname;
-    String dickname;
+    String nickname;
     String m_Text;
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case 1: {
-
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                } else {
-                    Toast.makeText(HomeActivity.this, R.string.error_location_refused, Toast.LENGTH_LONG).show();
-                    Intent i = new Intent(getApplicationContext(),HomeActivity.class);
-                    startActivity(i);
-
-
-                }
-
-                defaultDickname = getResources().getString(R.string.defaultDickname);
-                dickname = sp.getString(getString(R.string.dickname), defaultDickname);
-
-                if (defaultDickname == "no")   {
-                    ShowNickNameDialog();
-                }
-                boolean user = true;
-
-                return;
-            }
-            // If we need to check for other permissions, then this is the place to be
-
-        }
-    }
-
-    void ShowNickNameDialog()
-    {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Kies Nickname");
-
-// Set up the input
-        final EditText input = new EditText(this);
-// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        builder.setView(input);
-
-// Set up the buttons
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                m_Text = input.getText().toString();
-
-                if(!m_Text.isEmpty()) { // save the fields if NOT empty
-                    e.putString(getString(R.string.dickname), m_Text);
-                    e.commit(); // you forgot to commit
-                }
-                GeneratePIN();
-
-
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        builder.show();
-    }
-
-    void GeneratePIN()
-    {
-        int min = 1000;
-        int max = 9999;
-
-        Random r = new Random();
-        int i = r.nextInt(max - min + 1) + min;
-
-
-        defaultDickname = getResources().getString(R.string.defaultDickname);
-        dickname = sp.getString(getString(R.string.dickname), defaultDickname);
-
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(dickname);
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        builder.show();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,9 +33,7 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        ActivityCompat.requestPermissions(this,
-                new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                1);
+        ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
 
         Button mapBut = (Button) findViewById(R.id.mapButton);
         mapBut.setOnClickListener(new View.OnClickListener() {
@@ -153,12 +55,95 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-        sp = PreferenceManager.getDefaultSharedPreferences(this); // forget about
-        // named preferences - get the default ones and finish with it
-        e = sp.edit();
+        nickname = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("NickName", "Anonymous");
+        if (nickname.equals("Anonymous"))
+        {
+            ShowNickNameDialog();
+        }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
+    {
+        switch (requestCode)
+        {
+            case 1: {
 
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+
+                }
+                else
+                {
+                    Toast.makeText(HomeActivity.this, R.string.error_location_refused, Toast.LENGTH_LONG).show();
+                    Intent i = new Intent(getApplicationContext(),HomeActivity.class);
+                    startActivity(i);
+                }
+            }
+            // If we need to check for other permissions, then this is the place to be
+        }
+    }
+
+    void ShowNickNameDialog()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Kies Nickname");
+
+// Set up the input
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+// Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                m_Text = input.getText().toString();
+
+                if(!m_Text.isEmpty())
+                {
+                    PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("NickName", m_Text).commit();
+                    nickname = m_Text;
+                }
+                GeneratePIN();
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    void GeneratePIN()
+    {
+        int min = 1000;
+        int max = 9999;
+
+        Random r = new Random();
+        int i = r.nextInt(max - min + 1) + min;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(nickname);
+        builder.setMessage(Integer.toString(i));
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
