@@ -20,6 +20,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Random;
 
 public class HomeActivity extends AppCompatActivity {
@@ -36,6 +39,7 @@ public class HomeActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
 
+        //get the nickname and pin from memory if they are not there, return the defauultones
         nickname = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("NickName", "Anonymous");
         pin = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("PIN", Integer.toString(0000)));
 
@@ -163,8 +167,33 @@ public class HomeActivity extends AppCompatActivity {
         builder.setNegativeButton("OK", new DialogInterface.OnClickListener()
         {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onClick(DialogInterface dialog, int which)
+            {
                 dialog.cancel();
+
+                try
+                {
+                    // set up URL connection
+                    URL urlToRequest = new URL("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/users/");
+                    HttpURLConnection urlConnection = (HttpURLConnection) urlToRequest.openConnection();
+                    urlConnection.setDoOutput(true);
+                    urlConnection.setRequestMethod("POST");
+                    urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+// write out form parameters
+                    String postParameters = "name="+nickname+"&pin="+pin;
+                    urlConnection.setFixedLengthStreamingMode(postParameters.getBytes().length);
+                    PrintWriter out = new PrintWriter(urlConnection.getOutputStream());
+                    out.print(postParameters);
+                    out.close();
+
+// connect
+                    urlConnection.connect();
+                }
+                catch(Exception e)
+                {
+
+                }
             }
         });
 
