@@ -16,4 +16,6 @@
     <string name="map">Kaart</string>
     <string name="qr_scanner">QR Scanner</string>
     <string name="prompt_password">Wachtwoord (optioneel)</string>
+    <string name="permission_rationale"></string>
+    <string name="view_info">Bekijk pin en nickname</string>
 </resources>
