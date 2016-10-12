@@ -23,6 +23,7 @@
 
     <!-- Debugging menu -->
     <string name="debugging_menu" translatable="false">Debugging menu</string>
+    <string name="view_info">View pin and nickname</string>
     <string name="map">Map</string>
     <string name="qr_scanner">QR Scanner</string>
     <string name="database">Database</string>
