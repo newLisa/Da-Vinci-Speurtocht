@@ -97,10 +97,10 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-     //   if (nickname.equals("Anonymous"))
-       // {
+//        if (nickname.equals("Anonymous"))
+//        {
             ShowNickNameDialog();
-       // }
+//        }
     }
 
     @Override
@@ -148,8 +148,15 @@ public class HomeActivity extends AppCompatActivity {
                 {
                     PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("NickName", m_Text).commit();
                     nickname = m_Text;
+                    GeneratePIN();
                 }
-                GeneratePIN();
+                else
+                {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
+                    builder.setTitle("Nickname not valid");
+                    builder.show();
+                }
+
             }
         });
 
@@ -184,8 +191,8 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which)
             {
                 dialog.cancel();
-                PostMethodDemo bk = new PostMethodDemo();
-                bk.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/user/");
+                PostUserData pud = new PostUserData();
+                pud.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/user/");
 
             }
         });
@@ -193,7 +200,7 @@ public class HomeActivity extends AppCompatActivity {
         builder.show();
     }
 
-    public class PostMethodDemo extends AsyncTask<String , Void ,String> {
+    public class PostUserData extends AsyncTask<String , Void ,String> {
         String server_response;
 
         @Override
@@ -228,6 +235,7 @@ public class HomeActivity extends AppCompatActivity {
 
                 if(responseCode == HttpURLConnection.HTTP_OK){
                     server_response = readStream(urlConnection.getInputStream());
+                    Log.e("Response", server_response.toString());
                 }
 
             } catch (MalformedURLException e) {
