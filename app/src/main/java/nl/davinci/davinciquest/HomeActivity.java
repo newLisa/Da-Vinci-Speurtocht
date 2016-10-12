@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
@@ -13,16 +14,29 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class HomeActivity extends AppCompatActivity {
@@ -83,10 +97,10 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-        if (nickname.equals("Anonymous"))
-        {
+     //   if (nickname.equals("Anonymous"))
+       // {
             ShowNickNameDialog();
-        }
+       // }
     }
 
     @Override
@@ -170,35 +184,143 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which)
             {
                 dialog.cancel();
+                PostMethodDemo bk = new PostMethodDemo();
+                bk.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/user/");
 
-                try
-                {
-                    // set up URL connection
-                    URL urlToRequest = new URL("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/users/");
-                    HttpURLConnection urlConnection = (HttpURLConnection) urlToRequest.openConnection();
-                    urlConnection.setDoOutput(true);
-                    urlConnection.setRequestMethod("POST");
-                    urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-
-// write out form parameters
-                    String postParameters = "name="+nickname+"&pin="+pin;
-                    urlConnection.setFixedLengthStreamingMode(postParameters.getBytes().length);
-                    PrintWriter out = new PrintWriter(urlConnection.getOutputStream());
-                    out.print(postParameters);
-                    out.close();
-
-// connect
-                    urlConnection.connect();
-                }
-                catch(Exception e)
-                {
-
-                }
             }
         });
 
         builder.show();
     }
+
+    public class PostMethodDemo extends AsyncTask<String , Void ,String> {
+        String server_response;
+
+        @Override
+        protected String doInBackground(String... strings) {
+            URL url;
+            HttpURLConnection urlConnection = null;
+
+            try {
+                url = new URL(strings[0]);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setDoOutput(true);
+                urlConnection.setDoInput(true);
+                urlConnection.setRequestMethod("POST");
+
+                DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream ());
+
+                try {
+                    JSONObject obj = new JSONObject();
+                    obj.put("name" , nickname);
+                    obj.put("pin" , Integer.toString(pin));
+
+                    wr.writeBytes(obj.toString());
+                    Log.e("JSON Input", obj.toString());
+                    wr.flush();
+                    wr.close();
+                } catch (JSONException ex) {
+                    ex.printStackTrace();
+                }
+                urlConnection.connect();
+
+                int responseCode = urlConnection.getResponseCode();
+
+                if(responseCode == HttpURLConnection.HTTP_OK){
+                    server_response = readStream(urlConnection.getInputStream());
+                }
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            Log.e("Response", "" + server_response);
+        }
+    }
+
+    public static String readStream(InputStream in) {
+        BufferedReader reader = null;
+        StringBuffer response = new StringBuffer();
+        try {
+            reader = new BufferedReader(new InputStreamReader(in));
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return response.toString();
+    }
+
+//    public class BackgroundTask extends AsyncTask<String, String, ArrayList>
+//    {
+//        @Override
+//        protected ArrayList doInBackground(String... urlString) {
+//
+//            try
+//            {
+//                // set up URL connection
+//                URL urlToRequest = new URL(urlString[0]);
+//                HttpURLConnection urlConnection = (HttpURLConnection) urlToRequest.openConnection();
+//                urlConnection.setDoOutput(true);
+//                urlConnection.setRequestMethod("POST");
+//                urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+//
+//                // write out form parameters
+//                String postParameters = "name="+nickname+"&pin="+pin;
+//                urlConnection.setFixedLengthStreamingMode(postParameters.getBytes().length);
+//                PrintWriter out = new PrintWriter(urlConnection.getOutputStream());
+//                out.print(postParameters);
+//                out.close();
+//
+//                // connect
+//                urlConnection.connect();
+//                urlConnection.getResponseCode();
+//            }catch(MalformedURLException e)
+//            {
+//                e.printStackTrace();
+//            }
+//            catch(IOException e)
+//            {
+//                e.printStackTrace();
+//            }
+//
+//        }
+//
+//        @Override
+//        protected void onPreExecute()
+//        {
+//            super.onPreExecute();
+//        }
+//
+//        @Override
+//        protected void onPostExecute(ArrayList result)
+//        {
+//
+//
+//        }
+//
+//        @Override
+//        protected void onProgressUpdate(String... values) {
+//            super.onProgressUpdate(values);
+//        }
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -222,3 +344,4 @@ public class HomeActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 }
+
