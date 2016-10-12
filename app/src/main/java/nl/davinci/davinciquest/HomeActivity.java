@@ -235,7 +235,7 @@ public class HomeActivity extends AppCompatActivity {
 
                 if(responseCode == HttpURLConnection.HTTP_OK){
                     server_response = readStream(urlConnection.getInputStream());
-                    Log.e("Response", server_response.toString());
+                    
                 }
 
             } catch (MalformedURLException e) {
