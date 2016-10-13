@@ -53,10 +53,11 @@ public class HomeActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
 
-        //get the nickname and pin from memory if they are not there, return the defauultones
+        //get the nickname and pin from memory if they are not there, return the default ones
         nickname = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("NickName", "Anonymous");
         pin = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("PIN", Integer.toString(0000)));
 
+        //setup all the main menu buttons
         Button mapBut = (Button) findViewById(R.id.mapButton);
         mapBut.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,10 +98,11 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-//        if (nickname.equals("Anonymous"))
-//        {
+        //show the nickname dialog when the user has not yet set a nickname
+        if (nickname.equals("Anonymous"))
+        {
             ShowNickNameDialog();
-//        }
+        }
     }
 
     @Override
@@ -126,17 +128,18 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    //shows the dialog where the user can enter his nickname
     void ShowNickNameDialog()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Kies Nickname");
 
-// Set up the input
+// Set up the input edittext
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
 
-// Set up the buttons
+// Set up the OK and Cancel buttons
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener()
         {
             @Override
@@ -171,6 +174,7 @@ public class HomeActivity extends AppCompatActivity {
         builder.show();
     }
 
+    //generates a 4 number pin for the user
     void GeneratePIN()
     {
         int min = 1000;
@@ -193,13 +197,13 @@ public class HomeActivity extends AppCompatActivity {
                 dialog.cancel();
                 PostUserData pud = new PostUserData();
                 pud.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/user/");
-
             }
         });
 
         builder.show();
     }
 
+    //this class sends the user data to the API in a JSON object as a POST request
     public class PostUserData extends AsyncTask<String , Void ,String> {
         String server_response;
 
@@ -253,6 +257,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    //turn the response from the server into a readable string
     public static String readStream(InputStream in) {
         BufferedReader reader = null;
         StringBuffer response = new StringBuffer();
