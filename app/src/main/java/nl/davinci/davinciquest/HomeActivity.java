@@ -1,6 +1,7 @@
 package nl.davinci.davinciquest;
 
 import android.app.AlertDialog;
+import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,6 +22,7 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -53,10 +55,24 @@ public class HomeActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
 
+        SetButtonOnClickListeners();
+
         //get the nickname and pin from memory if they are not there, return the default ones
         nickname = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("NickName", "Anonymous");
         pin = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("PIN", Integer.toString(0000)));
 
+        //show the nickname dialog when the user has not yet set a nickname
+        if (nickname.equals("Anonymous"))
+        {
+            ShowNickNameDialog();
+        }
+
+        GetSpeurTochtList gsl = new GetSpeurTochtList();
+        gsl.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/speurtocht");
+    }
+
+    public void SetButtonOnClickListeners()
+    {
         //setup all the main menu buttons
         Button mapBut = (Button) findViewById(R.id.mapButton);
         mapBut.setOnClickListener(new View.OnClickListener() {
@@ -97,12 +113,6 @@ public class HomeActivity extends AppCompatActivity {
                 builder.show();
             }
         });
-
-        //show the nickname dialog when the user has not yet set a nickname
-        if (nickname.equals("Anonymous"))
-        {
-            ShowNickNameDialog();
-        }
     }
 
     @Override
@@ -239,7 +249,7 @@ public class HomeActivity extends AppCompatActivity {
 
                 if(responseCode == HttpURLConnection.HTTP_OK){
                     server_response = readStream(urlConnection.getInputStream());
-                    
+
                 }
 
             } catch (MalformedURLException e) {
@@ -281,60 +291,6 @@ public class HomeActivity extends AppCompatActivity {
         return response.toString();
     }
 
-//    public class BackgroundTask extends AsyncTask<String, String, ArrayList>
-//    {
-//        @Override
-//        protected ArrayList doInBackground(String... urlString) {
-//
-//            try
-//            {
-//                // set up URL connection
-//                URL urlToRequest = new URL(urlString[0]);
-//                HttpURLConnection urlConnection = (HttpURLConnection) urlToRequest.openConnection();
-//                urlConnection.setDoOutput(true);
-//                urlConnection.setRequestMethod("POST");
-//                urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-//
-//                // write out form parameters
-//                String postParameters = "name="+nickname+"&pin="+pin;
-//                urlConnection.setFixedLengthStreamingMode(postParameters.getBytes().length);
-//                PrintWriter out = new PrintWriter(urlConnection.getOutputStream());
-//                out.print(postParameters);
-//                out.close();
-//
-//                // connect
-//                urlConnection.connect();
-//                urlConnection.getResponseCode();
-//            }catch(MalformedURLException e)
-//            {
-//                e.printStackTrace();
-//            }
-//            catch(IOException e)
-//            {
-//                e.printStackTrace();
-//            }
-//
-//        }
-//
-//        @Override
-//        protected void onPreExecute()
-//        {
-//            super.onPreExecute();
-//        }
-//
-//        @Override
-//        protected void onPostExecute(ArrayList result)
-//        {
-//
-//
-//        }
-//
-//        @Override
-//        protected void onProgressUpdate(String... values) {
-//            super.onProgressUpdate(values);
-//        }
-//    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -356,5 +312,67 @@ public class HomeActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-}
 
+    public class GetSpeurTochtList extends AsyncTask<String, String, ArrayList>
+    {
+        @Override
+        protected ArrayList doInBackground(String... urlString) {
+            ArrayList items = new ArrayList();
+
+            try
+            {
+                URL url = new URL(urlString[0]);
+
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+                BufferedReader bufferedReader = new BufferedReader(
+                        new InputStreamReader(urlConnection.getInputStream()));
+
+                String next;
+
+                while ((next = bufferedReader.readLine()) != null)
+                {
+                    JSONArray ja = new JSONArray(next);
+
+                    for (int i = 0; i < ja.length(); i++)
+                    {
+                        JSONObject jo = (JSONObject) ja.get(i);
+                        items.add(jo.getString("naam"));
+                    }
+                }
+            }catch(MalformedURLException e)
+            {
+                e.printStackTrace();
+            }
+            catch(IOException e)
+            {
+                e.printStackTrace();
+            }
+            catch(JSONException e)
+            {
+                e.printStackTrace();
+            }
+            return items;
+        }
+
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList result)
+        {
+           ListView speurtochtListView = (ListView) findViewById(R.id.home_speurtocht_list);
+           speurtochtListView.setAdapter(new ArrayAdapter(HomeActivity.this,android.R.layout.simple_list_item_1,result));
+
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+        }
+    }
+}

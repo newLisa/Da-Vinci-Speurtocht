@@ -248,7 +248,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             try
             {
-                URL url = new URL("http://hiragraphics.com/api.php");
+                URL url = new URL("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/marker");
 
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
@@ -265,7 +265,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     for (int i = 0; i < ja.length(); i++)
                     {
                         JSONObject jo = (JSONObject) ja.get(i);
-                        LatLng latlng = new LatLng(Double.parseDouble(jo.getString("Latitude").toString()),Double.parseDouble(jo.getString("Longtitude").toString()));
+                        LatLng latlng = new LatLng(Double.parseDouble(jo.getString("latitude").toString()),Double.parseDouble(jo.getString("longitude").toString()));
 
                         locations.add(latlng);
                     }
