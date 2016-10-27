@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -113,6 +114,10 @@ public class HomeActivity extends AppCompatActivity {
                 builder.show();
             }
         });
+
+
+
+
     }
 
     @Override
@@ -169,7 +174,6 @@ public class HomeActivity extends AppCompatActivity {
                     builder.setTitle("Nickname not valid");
                     builder.show();
                 }
-
             }
         });
 
@@ -211,6 +215,52 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         builder.show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_home, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    //turn the response from the server into a readable string
+    public static String readStream(InputStream in) {
+        BufferedReader reader = null;
+        StringBuffer response = new StringBuffer();
+        try {
+            reader = new BufferedReader(new InputStreamReader(in));
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return response.toString();
     }
 
     //this class sends the user data to the API in a JSON object as a POST request
@@ -267,52 +317,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    //turn the response from the server into a readable string
-    public static String readStream(InputStream in) {
-        BufferedReader reader = null;
-        StringBuffer response = new StringBuffer();
-        try {
-            reader = new BufferedReader(new InputStreamReader(in));
-            String line = "";
-            while ((line = reader.readLine()) != null) {
-                response.append(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return response.toString();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_home, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
+    //this class get the speurtochten to diplay in the home menu
     public class GetSpeurTochtList extends AsyncTask<String, String, ArrayList>
     {
         @Override
@@ -363,11 +368,24 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(ArrayList result)
+        protected void onPostExecute(final ArrayList result)
         {
-           ListView speurtochtListView = (ListView) findViewById(R.id.home_speurtocht_list);
+          final ListView speurtochtListView = (ListView) findViewById(R.id.home_speurtocht_list);
            speurtochtListView.setAdapter(new ArrayAdapter(HomeActivity.this,android.R.layout.simple_list_item_1,result));
+            speurtochtListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view,
+                                        final int position, long id) {
+
+                    String main = speurtochtListView.getItemAtPosition(position).toString();
+
+                    //open kaart met int position in de api
+                    Intent i = new Intent(getApplicationContext(),MapsActivity.class);
+                    i.putExtra("id", position +1);
+                    startActivity(i);
+                }
+            });
         }
 
         @Override

@@ -50,6 +50,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     FloatingActionButton qrButton;
     int markerCount = 1;
     ArrayList markerLocations;
+    int speurtochtId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -60,6 +61,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        Bundle extras = getIntent().getExtras();
+        speurtochtId = extras.getInt("id");
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -72,6 +75,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         AddButtonOnClickListeners();
+
+
+        if(speurtochtId > 0)
+        {
+            GetSpeurtochtJsonData gs = new GetSpeurtochtJsonData();
+            gs.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtlocatie/" + speurtochtId);
+        }
+
     }
 
     /**
@@ -248,7 +259,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             try
             {
-                URL url = new URL("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/marker");
+                URL url = new URL(urlString[0]);
 
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
