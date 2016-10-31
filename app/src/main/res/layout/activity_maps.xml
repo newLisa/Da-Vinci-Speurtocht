@@ -63,6 +63,18 @@
         android:layout_marginBottom="13dp"
         app:backgroundTint="@android:color/holo_blue_dark" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:srcCompat="@drawable/ic_media_play"
+        android:layout_below="@+id/linearLayout"
+        android:layout_alignEnd="@+id/floatingQRbutton"
+        android:layout_marginTop="18dp"
+        android:id="@+id/floatingStartButton"
+        app:backgroundTint="@android:color/holo_green_dark"/>
+
 
 </RelativeLayout>
 

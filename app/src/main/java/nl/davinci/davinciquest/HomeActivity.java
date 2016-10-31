@@ -46,7 +46,7 @@ public class HomeActivity extends AppCompatActivity {
 
     String nickname;
     String m_Text;
-    int pin;
+    int pin, user_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +61,7 @@ public class HomeActivity extends AppCompatActivity {
         //get the nickname and pin from memory if they are not there, return the default ones
         nickname = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("NickName", "Anonymous");
         pin = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("PIN", Integer.toString(0000)));
-
+        user_id = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt("user_id", 0);
         //show the nickname dialog when the user has not yet set a nickname
         if (nickname.equals("Anonymous"))
         {
@@ -102,7 +102,7 @@ public class HomeActivity extends AppCompatActivity {
             {
                 AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
                 builder.setTitle(nickname);
-                builder.setMessage(Integer.toString(pin));
+                builder.setMessage("pin:" + Integer.toString(pin) + ", id:" + user_id);
                 builder.setNegativeButton("OK", new DialogInterface.OnClickListener()
                 {
                     @Override
@@ -299,7 +299,8 @@ public class HomeActivity extends AppCompatActivity {
 
                 if(responseCode == HttpURLConnection.HTTP_OK){
                     server_response = readStream(urlConnection.getInputStream());
-
+                    user_id = Integer.parseInt(server_response);
+                    PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putInt("user_id", Integer.parseInt(server_response)).commit();
                 }
 
             } catch (MalformedURLException e) {
@@ -376,13 +377,18 @@ public class HomeActivity extends AppCompatActivity {
 
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view,
-                                        final int position, long id) {
+                                        final int position, long id)
+                {
+                    //crete newkoppel user-tocht entry
+
+
 
                     String main = speurtochtListView.getItemAtPosition(position).toString();
 
                     //open kaart met int position in de api
                     Intent i = new Intent(getApplicationContext(),MapsActivity.class);
-                    i.putExtra("id", position +1);
+                    i.putExtra("id", position + 1);
+                    i.putExtra("user_id", user_id);
                     startActivity(i);
                 }
             });
@@ -393,4 +399,6 @@ public class HomeActivity extends AppCompatActivity {
             super.onProgressUpdate(values);
         }
     }
+
+
 }

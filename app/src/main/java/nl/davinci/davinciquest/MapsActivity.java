@@ -7,11 +7,13 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -34,7 +36,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -47,10 +51,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     GoogleApiClient mGoogleApiClient;
     Button markerButton, speurtochtButton;
-    FloatingActionButton qrButton;
+    FloatingActionButton qrButton, startButton;
     int markerCount = 1;
     ArrayList markerLocations;
-    int speurtochtId;
+    int speurtochtId, user_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -63,6 +67,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Bundle extras = getIntent().getExtras();
         speurtochtId = extras.getInt("id");
+        user_id = extras.getInt("user_id");
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -145,6 +150,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             {
                 Intent i = new Intent(getApplicationContext(),QRScanActivity.class);
                 startActivity(i);
+            }
+        });
+
+        startButton = (FloatingActionButton) findViewById(R.id.floatingStartButton);
+        startButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                PostKoppelTochtUser pktu = new PostKoppelTochtUser();
+                pktu.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtuser/");
             }
         });
 
@@ -314,5 +329,83 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
         }
+    }
+
+    public class PostKoppelTochtUser extends AsyncTask<String , Void ,String> {
+        String server_response;
+
+        @Override
+        protected String doInBackground(String... strings) {
+            URL url;
+            HttpURLConnection urlConnection = null;
+
+            try {
+                url = new URL(strings[0]);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setDoOutput(true);
+                urlConnection.setDoInput(true);
+                urlConnection.setRequestMethod("POST");
+
+                DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream ());
+
+                try {
+                    JSONObject obj = new JSONObject();
+                    obj.put("tocht_id" , Integer.toString(speurtochtId));
+                    obj.put("user_id" , Integer.toString(user_id));
+                    obj.put("started_bool", "true");
+                    obj.put("finished_bool", "false");
+
+                    wr.writeBytes(obj.toString());
+                    Log.e("JSON Input", obj.toString());
+                    wr.flush();
+                    wr.close();
+                } catch (JSONException ex) {
+                    ex.printStackTrace();
+                }
+                urlConnection.connect();
+
+                int responseCode = urlConnection.getResponseCode();
+
+                if(responseCode == HttpURLConnection.HTTP_OK){
+                    server_response = readStream(urlConnection.getInputStream());
+                }
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            Log.e("Response", "" + server_response);
+        }
+    }
+
+    //turn the response from the server into a readable string
+    public static String readStream(InputStream in) {
+        BufferedReader reader = null;
+        StringBuffer response = new StringBuffer();
+        try {
+            reader = new BufferedReader(new InputStreamReader(in));
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return response.toString();
     }
 }
