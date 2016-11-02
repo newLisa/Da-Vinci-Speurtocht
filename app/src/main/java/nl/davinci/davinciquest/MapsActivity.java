@@ -345,6 +345,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 urlConnection.setDoOutput(true);
                 urlConnection.setDoInput(true);
                 urlConnection.setRequestMethod("POST");
+                urlConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 
                 DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream ());
 
@@ -352,8 +353,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     JSONObject obj = new JSONObject();
                     obj.put("tocht_id" , Integer.toString(speurtochtId));
                     obj.put("user_id" , Integer.toString(user_id));
-                    obj.put("started_bool", "true");
-                    obj.put("finished_bool", "false");
+                    //obj.put("started_bool", "1");
+                    //obj.put("finished_bool", "0");
 
                     wr.writeBytes(obj.toString());
                     Log.e("JSON Input", obj.toString());
