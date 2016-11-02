@@ -1,8 +1,6 @@
 package nl.davinci.davinciquest;
 
 import android.app.AlertDialog;
-import android.app.ListActivity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,7 +12,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
@@ -35,7 +32,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -75,13 +71,15 @@ public class HomeActivity extends AppCompatActivity {
     public void SetButtonOnClickListeners()
     {
         //setup all the main menu buttons
-        Button mapBut = (Button) findViewById(R.id.mapButton);
-        mapBut.setOnClickListener(new View.OnClickListener() {
+        Button clearBut = (Button) findViewById(R.id.ClearButton);
+        clearBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                Intent i = new Intent(getApplicationContext(),MapsActivity.class);
-                startActivity(i);
+                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                SharedPreferences.Editor editor = sharedPrefs.edit();
+                editor.clear();
+                editor.commit();
             }
         });
 
@@ -155,6 +153,7 @@ public class HomeActivity extends AppCompatActivity {
         builder.setView(input);
 
 // Set up the OK and Cancel buttons
+        //TODO fix else clause
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener()
         {
             @Override
@@ -191,30 +190,16 @@ public class HomeActivity extends AppCompatActivity {
     //generates a 4 number pin for the user
     void GeneratePIN()
     {
+        //TODO move generate pin to API
         int min = 1000;
         int max = 9999;
 
         Random r = new Random();
         pin = r.nextInt(max - min + 1) + min;
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(nickname);
-        builder.setMessage(Integer.toString(pin));
-
+        PostUserData pud = new PostUserData();
+        pud.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/user/");
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("PIN", Integer.toString(pin)).commit();
-
-        builder.setNegativeButton("OK", new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
-                dialog.cancel();
-                PostUserData pud = new PostUserData();
-                pud.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/user/");
-            }
-        });
-
-        builder.show();
     }
 
     @Override
@@ -278,6 +263,7 @@ public class HomeActivity extends AppCompatActivity {
                 urlConnection.setDoOutput(true);
                 urlConnection.setDoInput(true);
                 urlConnection.setRequestMethod("POST");
+                urlConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 
                 DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream ());
 
@@ -399,6 +385,4 @@ public class HomeActivity extends AppCompatActivity {
             super.onProgressUpdate(values);
         }
     }
-
-
 }
