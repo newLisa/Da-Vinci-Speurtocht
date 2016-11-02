@@ -45,6 +45,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
+import nl.davinci.davinciquest.Entity.Marker;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback ,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
 {
 
@@ -53,7 +55,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Button markerButton, speurtochtButton;
     FloatingActionButton qrButton, startButton;
     int markerCount = 1;
-    ArrayList markerLocations;
+    ArrayList<Marker> markerLocations;
     int speurtochtId, user_id;
 
     @Override
@@ -134,15 +136,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void AddButtonOnClickListeners()
     {
-        markerButton = (Button) findViewById(R.id.currentLocMarkerButton);
-        markerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view)
-            {
-                SetMarkerAtCurrentLocation();
-            }
-        });
-
+//        markerButton = (Button) findViewById(R.id.currentLocMarkerButton);
+//        markerButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view)
+//            {
+//                SetMarkerAtCurrentLocation();
+//            }
+//        });
         qrButton = (FloatingActionButton) findViewById(R.id.floatingQRbutton);
         qrButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -162,15 +163,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 pktu.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtuser/");
             }
         });
-
-        speurtochtButton = (Button) findViewById(R.id.getSpeurtochButton);
-        speurtochtButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view)
-            {
-                GetSpeurtocht();
-            }
-        });
+//        speurtochtButton = (Button) findViewById(R.id.getSpeurtochButton);
+//        speurtochtButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view)
+//            {
+//                GetSpeurtocht();
+//            }
+//        });
     }
 
     public void ZoomCameraToCurrentPosition()
@@ -197,9 +197,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         {
             MarkerOptions options = new MarkerOptions();
 
-            options.position((LatLng)markerLocations.get(i));
-            options.title("marker #" + (i+1));
-            options.snippet("speurtocht 1");
+            LatLng markerPos = new LatLng(markerLocations.get(i).getLatitude(),markerLocations.get(i).getLongitude());
+            options.position(markerPos);
+            options.title(markerLocations.get(i).getName());
+            options.snippet(markerLocations.get(i).getInfo());
             options.icon(BitmapDescriptorFactory.fromResource(R.drawable.da_vinci_logo));
             mMap.addMarker(options);
         }
@@ -270,7 +271,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         protected ArrayList doInBackground(String... urlString) {
 
-            ArrayList locations = new ArrayList<ArrayList>();
+            ArrayList locations = new ArrayList<Marker>();
 
             try
             {
@@ -291,9 +292,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     for (int i = 0; i < ja.length(); i++)
                     {
                         JSONObject jo = (JSONObject) ja.get(i);
-                        LatLng latlng = new LatLng(Double.parseDouble(jo.getString("latitude").toString()),Double.parseDouble(jo.getString("longitude").toString()));
+                        Marker marker = new Marker();
+                        marker.setId(Integer.parseInt(jo.getString("id")));
+                        marker.setLatitude(Double.parseDouble(jo.getString("latitude")));
+                        marker.setLongitude(Double.parseDouble(jo.getString("longitude")));
+                        marker.setName(jo.getString("name"));
+                        marker.setInfo(jo.getString("info"));
 
-                        locations.add(latlng);
+                        locations.add(marker);
                     }
                 }
             }catch(MalformedURLException e)

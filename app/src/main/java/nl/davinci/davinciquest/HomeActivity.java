@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
@@ -92,30 +93,6 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
-
-        Button pinButton = (Button) findViewById(R.id.PinButton);
-        pinButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view)
-            {
-                AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
-                builder.setTitle(nickname);
-                builder.setMessage("pin:" + Integer.toString(pin) + ", id:" + user_id);
-                builder.setNegativeButton("OK", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-                builder.show();
-            }
-        });
-
-
-
-
     }
 
     @Override
@@ -150,8 +127,14 @@ public class HomeActivity extends AppCompatActivity {
 // Set up the input edittext
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_CLASS_TEXT);
-        builder.setView(input);
+//set filter for input length, max = 25
+        InputFilter[] filterArray = new InputFilter[1];
+        filterArray[0] = new InputFilter.LengthFilter(25);
+        input.setFilters(filterArray);
 
+        builder.setView(input);
+        builder.setCancelable(false);
+        
 // Set up the OK and Cancel buttons
         //TODO fix else clause
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener()
@@ -169,18 +152,19 @@ public class HomeActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
-                    builder.setTitle("Nickname not valid");
-                    builder.show();
-                }
-            }
-        });
+                    AlertDialog.Builder builder2 = new AlertDialog.Builder(HomeActivity.this);
+                    builder2.setTitle("Nickname not valid");
+                    builder2.setNegativeButton("Sorry", new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                            ShowNickNameDialog();
+                        }
+                    });
 
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
+                    builder2.show();
+                }
             }
         });
 
@@ -217,8 +201,19 @@ public class HomeActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_showNamePin) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
+            builder.setTitle(nickname);
+            builder.setMessage("pin:" + Integer.toString(pin));
+            builder.setNegativeButton("OK", new DialogInterface.OnClickListener()
+            {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            builder.show();
         }
 
         return super.onOptionsItemSelected(item);

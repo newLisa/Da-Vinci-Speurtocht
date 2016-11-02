@@ -50,11 +50,11 @@
         android:gravity="center"/>
 
     <Button
-        android:text="Bekijk PIN en Nickname"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/PinButton"
-        android:layout_above="@+id/ClearButton"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:text="Clear Data"
+        android:id="@+id/ClearButton"
+        android:layout_above="@+id/databaseButton"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"/>
 
@@ -63,25 +63,16 @@
         android:layout_height="wrap_content"
         android:text="@string/debugging_menu"
         android:id="@+id/textView"
-        android:layout_above="@+id/PinButton"
+        android:layout_above="@+id/ClearButton"
         android:layout_alignParentStart="true"/>
 
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/home_speurtocht_list"
-        android:layout_below="@+id/button2"
         android:layout_alignParentStart="true"
-        android:layout_above="@+id/textView"/>
-
-    <Button
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:text="Clear Data"
-        android:id="@+id/ClearButton"
-        android:layout_above="@+id/databaseButton"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"/>
+        android:layout_above="@+id/textView"
+        android:layout_below="@+id/button2"/>
 
     <!--<android.support.v7.widget.CardView-->
         <!--android:id="@+id/card_view"-->
