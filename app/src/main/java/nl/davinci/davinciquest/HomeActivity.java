@@ -72,6 +72,13 @@ public class HomeActivity extends AppCompatActivity {
         agsl.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtuser/activetochten/" + Integer.toString(user_id));
     }
 
+    @Override
+    public void onRestart() {
+        super.onRestart();
+        GetActiveSpeurTochtList agsl = new GetActiveSpeurTochtList();
+        agsl.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtuser/activetochten/" + Integer.toString(user_id));
+    }
+
     public void SetButtonOnClickListeners()
     {
         //setup all the main menu buttons
