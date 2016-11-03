@@ -67,6 +67,9 @@ public class HomeActivity extends AppCompatActivity {
 
         GetSpeurTochtList gsl = new GetSpeurTochtList();
         gsl.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/speurtocht");
+
+        GetActiveSpeurTochtList agsl = new GetActiveSpeurTochtList();
+        agsl.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtuser/activetochten/" + Integer.toString(user_id));
     }
 
     public void SetButtonOnClickListeners()
@@ -126,7 +129,7 @@ public class HomeActivity extends AppCompatActivity {
 
 // Set up the input edittext
         final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_CLASS_TEXT);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
 //set filter for input length, max = 25
         InputFilter[] filterArray = new InputFilter[1];
         filterArray[0] = new InputFilter.LengthFilter(25);
@@ -134,9 +137,8 @@ public class HomeActivity extends AppCompatActivity {
 
         builder.setView(input);
         builder.setCancelable(false);
-        
+
 // Set up the OK and Cancel buttons
-        //TODO fix else clause
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener()
         {
             @Override
@@ -352,8 +354,8 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(final ArrayList result)
         {
-          final ListView speurtochtListView = (ListView) findViewById(R.id.home_speurtocht_list);
-           speurtochtListView.setAdapter(new ArrayAdapter(HomeActivity.this,android.R.layout.simple_list_item_1,result));
+            final ListView speurtochtListView = (ListView) findViewById(R.id.home_speurtocht_list);
+            speurtochtListView.setAdapter(new ArrayAdapter(HomeActivity.this,android.R.layout.simple_list_item_1,result));
             speurtochtListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
                 @Override
@@ -380,4 +382,88 @@ public class HomeActivity extends AppCompatActivity {
             super.onProgressUpdate(values);
         }
     }
+
+    //this class get the speurtochten to diplay in the home menu
+    public class GetActiveSpeurTochtList extends AsyncTask<String, String, ArrayList>
+    {
+        @Override
+        protected ArrayList doInBackground(String... urlString) {
+            ArrayList items = new ArrayList();
+
+            try
+            {
+                URL url = new URL(urlString[0]);
+
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+                BufferedReader bufferedReader = new BufferedReader(
+                        new InputStreamReader(urlConnection.getInputStream()));
+
+                String next;
+
+                while ((next = bufferedReader.readLine()) != null)
+                {
+                    JSONArray ja = new JSONArray(next);
+
+                    for (int i = 0; i < ja.length(); i++)
+                    {
+                        JSONObject jo = (JSONObject) ja.get(i);
+                        items.add(jo.getString("naam"));
+                    }
+                }
+            }catch(MalformedURLException e)
+            {
+                e.printStackTrace();
+            }
+            catch(IOException e)
+            {
+                e.printStackTrace();
+            }
+            catch(JSONException e)
+            {
+                e.printStackTrace();
+            }
+            return items;
+        }
+
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(final ArrayList result)
+        {
+            final ListView speurtochtListView = (ListView) findViewById(R.id.activeTochtenList);
+            speurtochtListView.setAdapter(new ArrayAdapter(HomeActivity.this,android.R.layout.simple_list_item_1,result));
+            speurtochtListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view,
+                                        final int position, long id)
+                {
+                    //crete newkoppel user-tocht entry
+
+
+
+//                    String main = speurtochtListView.getItemAtPosition(position).toString();
+//
+//                    //open kaart met int position in de api
+//                    Intent i = new Intent(getApplicationContext(),MapsActivity.class);
+//                    i.putExtra("id", position + 1);
+//                    i.putExtra("user_id", user_id);
+//                    startActivity(i);
+                }
+            });
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+        }
+    }
+
+
 }
