@@ -43,4 +43,9 @@
   <component name="ProjectType">
     <option name="id" value="Android" />
   </component>
+  <component name="SvnConfiguration" myUseAcceleration="nothing">
+    <configuration>C:\Users\nicog\AppData\Roaming\Subversion</configuration>
+    <option name="sshConnectionType" value="PASSWORD" />
+    <option name="sshUserName" value="nshultz" />
+  </component>
 </project>

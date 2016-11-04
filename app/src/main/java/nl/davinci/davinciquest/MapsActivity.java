@@ -6,12 +6,11 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
-import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
@@ -45,7 +44,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
+import nl.davinci.davinciquest.Controllers.QuestController;
 import nl.davinci.davinciquest.Entity.Marker;
+import nl.davinci.davinciquest.Entity.Quest;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback ,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
 {
@@ -57,6 +58,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     int markerCount = 1;
     ArrayList<Marker> markerLocations;
     int speurtochtId, user_id;
+    Quest quest = new Quest();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -69,6 +71,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Bundle extras = getIntent().getExtras();
         speurtochtId = extras.getInt("id");
+        GetQuestData(speurtochtId);
         user_id = extras.getInt("user_id");
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -185,10 +188,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
-    public void GetSpeurtocht()
+    //Gets all data from the quest trough the quest controller and puts it in a global variable
+    public void GetQuestData(int questId)
     {
-        GetSpeurtochtJsonData gs = new GetSpeurtochtJsonData();
-        gs.execute();
+        QuestController questController = new QuestController();
+        quest = questController.getQuest(questId);
     }
 
     public void PlaceMarkers()
