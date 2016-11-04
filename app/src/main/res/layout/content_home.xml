@@ -47,7 +47,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:maxLength="4"
-        android:gravity="center"/>
+        android:gravity="center" />
 
     <Button
         android:layout_width="200dp"

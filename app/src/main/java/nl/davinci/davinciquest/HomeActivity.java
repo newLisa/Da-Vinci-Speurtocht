@@ -103,6 +103,9 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
+
+        EditText et = (EditText) findViewById(R.id.editText);
+        et.clearFocus();
     }
 
     @Override
@@ -371,8 +374,6 @@ public class HomeActivity extends AppCompatActivity {
                 {
                     //crete newkoppel user-tocht entry
 
-
-
                     String main = speurtochtListView.getItemAtPosition(position).toString();
 
                     //open kaart met int position in de api
@@ -451,17 +452,7 @@ public class HomeActivity extends AppCompatActivity {
                 public void onItemClick(AdapterView<?> parent, View view,
                                         final int position, long id)
                 {
-                    //crete newkoppel user-tocht entry
 
-
-
-//                    String main = speurtochtListView.getItemAtPosition(position).toString();
-//
-//                    //open kaart met int position in de api
-//                    Intent i = new Intent(getApplicationContext(),MapsActivity.class);
-//                    i.putExtra("id", position + 1);
-//                    i.putExtra("user_id", user_id);
-//                    startActivity(i);
                 }
             });
         }
