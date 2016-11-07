@@ -9,10 +9,16 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 import nl.davinci.davinciquest.Entity.QuestUser;
+import nl.davinci.davinciquest.Entity.Quest;
 
 /**
  * Created by nicog on 4-11-2016.
@@ -22,30 +28,32 @@ public class QuestUserController {
 
     QuestUser questUser = new QuestUser();
     Boolean done;
+    ArrayList<Quest> quest= new ArrayList();
 
-    public QuestUser getQuestUser(Integer userId)
+    public ArrayList<Quest> getQuestByUserId(Integer userId)
     {
         done = false;
-        QuestUserController.GetQuestUserBackground getQuestUserBackground = new QuestUserController.GetQuestBackground();
-        getQuestUserBackground.execute(userId);
-        while (done == false)   {
-            try {
-                Thread.sleep(1000);
-            } catch(InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
+        QuestUserController.GetQuestsByUserBackground getQuestsByUserBackground = new QuestUserController.GetQuestsByUserBackground();
+        try {
+            quest = getQuestsByUserBackground.execute(userId).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         }
 
-        return questUser;
+
+        return quest;
     }
 
-    public class GetQuestsByUserBackground extends AsyncTask<Integer, String, QuestUser>
+    public class GetQuestsByUserBackground extends AsyncTask<Integer, String, ArrayList<Quest>>
     {
 
         @Override
-        protected QuestUser doInBackground(Integer... userId) {
+        protected ArrayList<Quest> doInBackground(Integer... userId) {
 
-            QuestUser bgQuestUser = new QuestUser();
+
+            ArrayList<Quest> questList = new ArrayList<>();
 
             try
             {
@@ -66,10 +74,13 @@ public class QuestUserController {
                     for (int i = 0; i < ja.length(); i++)
                     {
                         JSONObject jo = (JSONObject) ja.get(i);
+                        Quest bgQuest = new Quest();
                         bgQuest.setId(Integer.parseInt(jo.getString("id")));
                         bgQuest.setName(jo.getString("naam"));
                         bgQuest.setCourse(jo.getString("opleiding"));
                         bgQuest.setInformation(jo.getString("informatie"));
+
+                        questList.add(bgQuest);
 
                     }
                 }
@@ -86,7 +97,7 @@ public class QuestUserController {
                 e.printStackTrace();
             }
 
-            return bgQuest;
+            return questList;
         }
 
         @Override
@@ -96,10 +107,9 @@ public class QuestUserController {
         }
 
         @Override
-        protected void onPostExecute(Quest bgQuest)
+        protected void onPostExecute(ArrayList<Quest> questList)
         {
-            done = true;
-            quest = bgQuest;
+
         }
 
         @Override

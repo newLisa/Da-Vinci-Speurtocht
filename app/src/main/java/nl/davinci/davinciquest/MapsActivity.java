@@ -45,6 +45,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import nl.davinci.davinciquest.Controllers.QuestController;
+import nl.davinci.davinciquest.Controllers.QuestUserController;
 import nl.davinci.davinciquest.Entity.Marker;
 import nl.davinci.davinciquest.Entity.Quest;
 
@@ -59,16 +60,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<Marker> markerLocations;
     int speurtochtId, user_id;
     Quest quest = new Quest();
+    ArrayList<Quest> userQuestList = new ArrayList<>();
+    QuestUserController questUserController = new QuestUserController();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         //ask for location permission
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
         Bundle extras = getIntent().getExtras();
         speurtochtId = extras.getInt("id");
         GetQuestData(speurtochtId);
@@ -164,6 +165,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             {
                 PostKoppelTochtUser pktu = new PostKoppelTochtUser();
                 pktu.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtuser/");
+                mMap.clear();
+                PlaceMarkers();
             }
         });
 //        speurtochtButton = (Button) findViewById(R.id.getSpeurtochButton);
@@ -197,6 +200,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void PlaceMarkers()
     {
+        Boolean started = false;
+        userQuestList = questUserController.getQuestByUserId(user_id);
+        for (int i = 0; i < userQuestList.size(); i++)   {
+            if (userQuestList.get(i).getId() == quest.getId())  {
+                started = true;
+            }
+        }
+
         for (int i = 0; i < markerLocations.size(); i++)
         {
             MarkerOptions options = new MarkerOptions();
@@ -205,8 +216,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             options.position(markerPos);
             options.title(markerLocations.get(i).getName());
             options.snippet(markerLocations.get(i).getInfo());
-            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.da_vinci_logo));
+            if (started)
+            {
+                options.icon(BitmapDescriptorFactory.fromResource(R.drawable.da_vinci_logo));
+            }
+            else
+            {
+                options.icon(BitmapDescriptorFactory.fromResource(R.drawable.cast_album_art_placeholder));
+            }
+
             mMap.addMarker(options);
+
         }
     }
 

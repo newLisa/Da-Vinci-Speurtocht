@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 import nl.davinci.davinciquest.Entity.Quest;
 
@@ -26,14 +27,15 @@ public class QuestController {
     {
         done = false;
         GetQuestBackground getQuestBackground = new GetQuestBackground();
-        getQuestBackground.execute(questId);
-        while (done == false)   {
-            try {
-                Thread.sleep(1000);
-            } catch(InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
+
+        try {
+            quest = getQuestBackground.execute(questId).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         }
+
 
         return quest;
     }
@@ -60,17 +62,14 @@ public class QuestController {
 
                 while ((next = bufferedReader.readLine()) != null)
                 {
-                    JSONArray ja = new JSONArray(next);
 
-                    for (int i = 0; i < ja.length(); i++)
-                    {
-                        JSONObject jo = (JSONObject) ja.get(i);
+                        JSONObject jo = new JSONObject(next);
+
                         bgQuest.setId(Integer.parseInt(jo.getString("id")));
                         bgQuest.setName(jo.getString("naam"));
                         bgQuest.setCourse(jo.getString("opleiding"));
                         bgQuest.setInformation(jo.getString("informatie"));
 
-                    }
                 }
             }catch(MalformedURLException e)
             {
