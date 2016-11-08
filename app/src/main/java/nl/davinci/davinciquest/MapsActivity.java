@@ -24,6 +24,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -127,6 +129,47 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         {
             mMap.setMyLocationEnabled(true);
         }
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(com.google.android.gms.maps.model.Marker marker) {
+
+                Dialog dialog = new Dialog(MapsActivity.this);
+                dialog.setContentView(R.layout.custom_marker_dialog);
+                dialog.setTitle(marker.getTitle());
+
+                ImageView img = (ImageView) dialog.findViewById(R.id.custom_dialog_image);
+                img.setImageResource(R.drawable.paardenbloem);
+
+                TextView infoTextView = (TextView) dialog.findViewById(R.id.custom_dialog_info);
+                infoTextView.setText(marker.getSnippet());
+                dialog.show();
+//                AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
+//                builder.setTitle(marker.getTitle());
+//                builder.setMessage(marker.getSnippet());
+//                builder.setIcon(R.drawable.greenmarkersmall);
+//                //add image to dialog
+////                LayoutInflater factory = LayoutInflater.from(MapsActivity.this);
+////                final View view = factory.inflate(R.layout.imageviewdialog, null);
+////                builder.setView(view);
+//
+//
+//                // Set up the OK and Cancel buttons
+//                builder.setPositiveButton("OK", new DialogInterface.OnClickListener()
+//                {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which)
+//                    {
+//
+//
+//                    }
+//                });
+//
+//                builder.show();
+                return true;
+            }
+
+        });
     }
 
     @Override
@@ -147,7 +190,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void run() {
                 ZoomCameraToCurrentPosition();
             }
-        }, 3000);
+        }, 1500);
     }
 
     public void AddButtonOnClickListeners()
@@ -181,14 +224,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 PlaceMarkers();
             }
         });
-//        speurtochtButton = (Button) findViewById(R.id.getSpeurtochButton);
-//        speurtochtButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view)
-//            {
-//                GetSpeurtocht();
-//            }
-//        });
     }
 
     public void ZoomCameraToCurrentPosition()
@@ -230,42 +265,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             options.snippet(markerLocations.get(i).getInfo());
             if (started)
             {
-                options.icon(BitmapDescriptorFactory.fromResource(R.drawable.da_vinci_logo));
+                options.icon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
             }
             else
             {
-                options.icon(BitmapDescriptorFactory.fromResource(R.drawable.cast_album_art_placeholder));
+                options.icon(BitmapDescriptorFactory.fromResource(R.drawable.greymarkersmall));
             }
 
             mMap.addMarker(options);
 
         }
-
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(com.google.android.gms.maps.model.Marker marker) {
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
-                builder.setTitle("Kies Nickname");
-
-
-// Set up the OK and Cancel buttons
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-
-
-
-                    }
-                });
-
-                builder.show();
-                return true;
-            }
-
-        });
     }
 
     //Sets  marker at the users current location
@@ -285,7 +294,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             options.title("marker #" + markerCount);
             options.draggable(true);
             options.snippet("dit is een snippet");
-            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.da_vinci_logo));
+            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
             mMap.addMarker(options);
             markerCount++;
         }
