@@ -65,7 +65,6 @@ import nl.davinci.davinciquest.Entity.Quest;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback ,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
 {
-
     private GoogleMap mMap;
     GoogleApiClient mGoogleApiClient;
     Button markerButton, speurtochtButton;
@@ -102,12 +101,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         AddButtonOnClickListeners();
 
-
         if (speurtochtId > 0) {
             GetSpeurtochtJsonData gs = new GetSpeurtochtJsonData();
             gs.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtlocatie/" + speurtochtId);
         }
-
     }
 
     /**
@@ -144,28 +141,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 TextView infoTextView = (TextView) dialog.findViewById(R.id.custom_dialog_info);
                 infoTextView.setText(marker.getSnippet());
                 dialog.show();
-//                AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
-//                builder.setTitle(marker.getTitle());
-//                builder.setMessage(marker.getSnippet());
-//                builder.setIcon(R.drawable.greenmarkersmall);
-//                //add image to dialog
-////                LayoutInflater factory = LayoutInflater.from(MapsActivity.this);
-////                final View view = factory.inflate(R.layout.imageviewdialog, null);
-////                builder.setView(view);
-//
-//
-//                // Set up the OK and Cancel buttons
-//                builder.setPositiveButton("OK", new DialogInterface.OnClickListener()
-//                {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which)
-//                    {
-//
-//
-//                    }
-//                });
-//
-//                builder.show();
+
                 return true;
             }
 
@@ -273,7 +249,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
             mMap.addMarker(options);
-
         }
     }
 
