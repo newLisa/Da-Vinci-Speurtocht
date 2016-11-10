@@ -135,7 +135,7 @@ public class HomeActivity extends AppCompatActivity {
     void ShowNickNameDialog()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Kies Nickname");
+        builder.setTitle(R.string.prompt_nickname);
 
 // Set up the input edittext
         final EditText input = new EditText(this);
@@ -165,8 +165,8 @@ public class HomeActivity extends AppCompatActivity {
                 else
                 {
                     AlertDialog.Builder builder2 = new AlertDialog.Builder(HomeActivity.this);
-                    builder2.setTitle("Nickname not valid");
-                    builder2.setNegativeButton("Sorry", new DialogInterface.OnClickListener()
+                    builder2.setTitle(R.string.error_nickname_invalid);
+                    builder2.setNegativeButton(R.string.error_retry, new DialogInterface.OnClickListener()
                     {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
