@@ -89,7 +89,7 @@ public class QRScanActivity extends AppCompatActivity implements ZXingScannerVie
         else
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Scan Result");
+            builder.setTitle(R.string.scan_result);
             builder.setMessage(result.getText());
             AlertDialog alert1 = builder.create();
             alert1.show();
