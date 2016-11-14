@@ -25,6 +25,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.google.android.gms.appindexing.Action;
@@ -57,9 +58,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import nl.davinci.davinciquest.Controllers.MarkerController;
 import nl.davinci.davinciquest.Controllers.QuestController;
 import nl.davinci.davinciquest.Controllers.QuestUserController;
 import nl.davinci.davinciquest.Entity.Marker;
@@ -78,6 +79,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<Quest> userQuestList = new ArrayList<>();
     QuestUserController questUserController = new QuestUserController();
     TextView questionText;
+    RadioButton answerRadio1, answerRadio2, answerRadio3, answerRadio4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,27 +147,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 infoTextView.setText(marker.getSnippet());
 
                 questionText = (TextView) dialog.findViewById(R.id.QuestionText);
+                answerRadio1 = (RadioButton) dialog.findViewById(R.id.answerRadio1);
+                answerRadio2 = (RadioButton) dialog.findViewById(R.id.answerRadio2);
+                answerRadio3 = (RadioButton) dialog.findViewById(R.id.answerRadio3);
+                answerRadio4 = (RadioButton) dialog.findViewById(R.id.answerRadio4);
+
                 Marker m =(Marker) marker.getTag();
                 if(m != null)
                 {
                     int vraagId = m.getVraag_id();
                     GetQuestion getq = new GetQuestion();
                     getq.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/vraag/" + Integer.toString(vraagId));
-
                 }
-
 
                 dialog.show();
 
                 return true;
             }
-
         });
-    }
-
-    void SetQuestionText(String question)
-    {
-
     }
 
     @Override
@@ -358,7 +357,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public class GetSpeurtochtJsonData extends AsyncTask<String, String, ArrayList>
     {
-
         @Override
         protected ArrayList doInBackground(String... urlString) {
 
@@ -484,13 +482,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    public class GetQuestion extends AsyncTask<String, String, String>
+    public class GetQuestion extends AsyncTask<String, String, ArrayList<String>>
     {
-
         @Override
-        protected String doInBackground(String... urlString) {
+        protected  ArrayList<String> doInBackground(String... urlString) {
 
-            String question = "";
+            ArrayList<String> questionData = new ArrayList<>();
 
             try
             {
@@ -507,7 +504,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 while ((next = bufferedReader.readLine()) != null)
                 {
                     JSONObject jo = new JSONObject(next);
-                    question = jo.getString("vraag");
+
+                    questionData.add(jo.getString("vraag"));
+                    questionData.add(jo.getString("answer_1"));
+                    questionData.add(jo.getString("answer_2"));
+                    questionData.add(jo.getString("answer_3"));
+                    questionData.add(jo.getString("answer_4"));
                 }
             }catch(MalformedURLException e)
             {
@@ -522,7 +524,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 e.printStackTrace();
             }
 
-            return question;
+            return questionData;
         }
 
         @Override
@@ -532,9 +534,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         @Override
-        protected void onPostExecute(String question)
+        protected void onPostExecute( ArrayList<String> questionData)
         {
-            questionText.setText(question);
+            questionText.setText((String)questionData.get(0));
+            answerRadio1.setText((String) questionData.get(1));
+            answerRadio2.setText((String) questionData.get(2));
+            answerRadio3.setText((String) questionData.get(3));
+            answerRadio4.setText((String) questionData.get(4));
         }
 
         @Override
