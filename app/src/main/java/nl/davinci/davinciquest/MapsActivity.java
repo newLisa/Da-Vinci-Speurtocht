@@ -57,7 +57,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Map;
 
+import nl.davinci.davinciquest.Controllers.MarkerController;
 import nl.davinci.davinciquest.Controllers.QuestController;
 import nl.davinci.davinciquest.Controllers.QuestUserController;
 import nl.davinci.davinciquest.Entity.Marker;
@@ -75,6 +77,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Quest quest = new Quest();
     ArrayList<Quest> userQuestList = new ArrayList<>();
     QuestUserController questUserController = new QuestUserController();
+    TextView questionText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,12 +143,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 TextView infoTextView = (TextView) dialog.findViewById(R.id.custom_dialog_info);
                 infoTextView.setText(marker.getSnippet());
+
+                questionText = (TextView) dialog.findViewById(R.id.QuestionText);
+                Marker m =(Marker) marker.getTag();
+                if(m != null)
+                {
+                    int vraagId = m.getVraag_id();
+                    GetQuestion getq = new GetQuestion();
+                    getq.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/vraag/" + Integer.toString(vraagId));
+
+                }
+
+
                 dialog.show();
 
                 return true;
             }
 
         });
+    }
+
+    void SetQuestionText(String question)
+    {
+
     }
 
     @Override
@@ -239,6 +259,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             options.position(markerPos);
             options.title(markerLocations.get(i).getName());
             options.snippet(markerLocations.get(i).getInfo());
+
             if (started)
             {
                 options.icon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
@@ -248,7 +269,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 options.icon(BitmapDescriptorFactory.fromResource(R.drawable.greymarkersmall));
             }
 
-            mMap.addMarker(options);
+            Marker markerController = new Marker();
+            markerController.setVraag_id(markerLocations.get(i).getVraag_id());
+
+
+           com.google.android.gms.maps.model.Marker m = mMap.addMarker(options);
+            m.setTag(markerController);
         }
     }
 
@@ -363,6 +389,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         marker.setLongitude(Double.parseDouble(jo.getString("longitude")));
                         marker.setName(jo.getString("name"));
                         marker.setInfo(jo.getString("info"));
+                        marker.setVraag_id(Integer.parseInt(jo.getString("question_id")));
 
                         locations.add(marker);
                     }
@@ -454,6 +481,65 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             Log.e("Response", "" + server_response);
+        }
+    }
+
+    public class GetQuestion extends AsyncTask<String, String, String>
+    {
+
+        @Override
+        protected String doInBackground(String... urlString) {
+
+            String question = "";
+
+            try
+            {
+                URL url = new URL(urlString[0]);
+
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+                BufferedReader bufferedReader = new BufferedReader(
+                        new InputStreamReader(urlConnection.getInputStream()));
+
+                String next;
+
+                while ((next = bufferedReader.readLine()) != null)
+                {
+                    JSONObject jo = new JSONObject(next);
+                    question = jo.getString("vraag");
+                }
+            }catch(MalformedURLException e)
+            {
+                e.printStackTrace();
+            }
+            catch(IOException e)
+            {
+                e.printStackTrace();
+            }
+            catch(JSONException e)
+            {
+                e.printStackTrace();
+            }
+
+            return question;
+        }
+
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(String question)
+        {
+            questionText.setText(question);
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
         }
     }
 
