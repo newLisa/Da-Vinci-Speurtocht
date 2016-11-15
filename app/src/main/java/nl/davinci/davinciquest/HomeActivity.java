@@ -72,37 +72,15 @@ public class HomeActivity extends AppCompatActivity {
             ShowNickNameDialog();
         }
 
-
-
         GetSpeurTochtList gsl = new GetSpeurTochtList();
-
-            gsl.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/speurtocht");
-
-
-
-
-
+        gsl.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/speurtocht");
     }
 
     @Override
     public void onRestart() {
         super.onRestart();
-        GetActiveSpeurTochtList agsl = new GetActiveSpeurTochtList();
-        agsl.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtuser/activetochten/" + Integer.toString(user_id));
-    }
-
-    public void ColorActiveQuests(AdapterView<?> parent)
-    {
-        for(int i = 0; i < activeQuestList.size(); i++)
-        {
-            for (int q = 0; q < questList.size(); q++)
-            {
-                if (activeQuestList.get(i).getName().equals(questList.get(q).getName()))
-                {
-                    parent.getChildAt(q).setBackgroundColor(Color.BLUE);
-                }
-            }
-        }
+        GetSpeurTochtList gsl = new GetSpeurTochtList();
+        gsl.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/speurtocht");
     }
 
     public void SetButtonOnClickListeners()
@@ -141,10 +119,8 @@ public class HomeActivity extends AppCompatActivity {
         {
             case 1: {
 
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                 {
-
                 }
                 else
                 {
@@ -342,7 +318,6 @@ public class HomeActivity extends AppCompatActivity {
     {
         @Override
         protected ArrayList doInBackground(String... urlString) {
-            ArrayList items = new ArrayList();
             ArrayList<Quest> questList = new ArrayList();
 
             try
@@ -408,15 +383,11 @@ public class HomeActivity extends AppCompatActivity {
                 public void onItemClick(AdapterView<?> parent, View view,
                                         final int position, long id)
                 {
-
-                    //open kaart met int position in de api
                     Intent i = new Intent(getApplicationContext(),MapsActivity.class);
                     i.putExtra("id", questList.get(position).getId());
                     i.putExtra("user_id", user_id);
-                    //parent.getChildAt(position).setBackgroundColor(Color.BLUE);
-                    ColorActiveQuests(parent);
 
-                    //startActivity(i);
+                    startActivity(i);
                 }
             });
 
@@ -428,7 +399,6 @@ public class HomeActivity extends AppCompatActivity {
             } catch (ExecutionException e) {
                 e.printStackTrace();
             }
-
         }
 
         @Override
@@ -492,7 +462,8 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(ArrayList<Quest> questArray)
         {
-
+            ColorListview colorlistview = new ColorListview();
+            colorlistview.execute();
         }
 
         @Override
@@ -501,5 +472,39 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    public class ColorListview extends AsyncTask<String, String, ArrayList<Quest>>
+    {
+        @Override
+        protected ArrayList doInBackground(String... urlString) {
+            return null;
+        }
 
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(final ArrayList<Quest> result)
+        {
+            for(int i = 0; i < activeQuestList.size(); i++)
+            {
+                for (int q = 0; q < questList.size(); q++)
+                {
+                    if (activeQuestList.get(i).getName().equals(questList.get(q).getName()))
+                    {
+                        ListView speurtochtListView = (ListView) findViewById(R.id.home_speurtocht_list);
+
+                        speurtochtListView.getChildAt(q).setBackgroundColor(Color.BLUE);
+                    }
+                }
+            }
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+        }
+    }
 }
