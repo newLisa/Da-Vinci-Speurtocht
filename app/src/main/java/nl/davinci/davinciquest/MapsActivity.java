@@ -26,6 +26,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.google.android.gms.appindexing.Action;
@@ -61,8 +62,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import nl.davinci.davinciquest.Controllers.LocationUserController;
 import nl.davinci.davinciquest.Controllers.QuestController;
 import nl.davinci.davinciquest.Controllers.QuestUserController;
+import nl.davinci.davinciquest.Entity.LocationUser;
 import nl.davinci.davinciquest.Entity.Marker;
 import nl.davinci.davinciquest.Entity.Quest;
 
@@ -70,7 +73,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 {
     private GoogleMap mMap;
     GoogleApiClient mGoogleApiClient;
-    Button markerButton, speurtochtButton;
+    Button markerButton, speurtochtButton, answerButton;
     FloatingActionButton qrButton, startButton;
     int markerCount = 1;
     ArrayList<Marker> markerLocations;
@@ -79,7 +82,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<Quest> userQuestList = new ArrayList<>();
     QuestUserController questUserController = new QuestUserController();
     TextView questionText;
+    RadioGroup answerRadioGroup;
     RadioButton answerRadio1, answerRadio2, answerRadio3, answerRadio4;
+    String correctAnswer;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,9 +140,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
-            public boolean onMarkerClick(com.google.android.gms.maps.model.Marker marker) {
+            public boolean onMarkerClick(final com.google.android.gms.maps.model.Marker marker) {
 
-                Dialog dialog = new Dialog(MapsActivity.this);
+                final Dialog dialog = new Dialog(MapsActivity.this);
                 dialog.setContentView(R.layout.custom_marker_dialog);
                 dialog.setTitle(marker.getTitle());
 
@@ -151,6 +157,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 answerRadio2 = (RadioButton) dialog.findViewById(R.id.answerRadio2);
                 answerRadio3 = (RadioButton) dialog.findViewById(R.id.answerRadio3);
                 answerRadio4 = (RadioButton) dialog.findViewById(R.id.answerRadio4);
+
+                answerButton = (Button) dialog.findViewById(R.id.answerButton);
+                answerButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        Marker currentLocation = (Marker) marker.getTag();
+                        answerRadioGroup = (RadioGroup) dialog.findViewById(R.id.answerRadioGroup);
+                        int selectedRadiobuttonId = answerRadioGroup.getCheckedRadioButtonId();
+                        RadioButton selectedRadioButton = (RadioButton) answerRadioGroup.findViewById(selectedRadiobuttonId);
+                        String answer = selectedRadioButton.getText().toString();
+                        LocationUser locationUser = new LocationUser();
+                        locationUser.setUser_id(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt("user_id", 0));
+                        locationUser.setLocation_id(currentLocation.getId());
+                        LocationUserController locationUserController = new LocationUserController();
+                        if (correctAnswer.equals(answer))    {
+                            locationUser.setAnswered_correct(1);
+                            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
+                        }
+                        else
+                        {
+                            locationUser.setAnswered_correct(0);
+                            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greymarkersmall));
+                        }
+                        locationUserController.postLocationUser(locationUser);
+                        dialog.cancel();
+                    }
+                });
 
                 Marker m =(Marker) marker.getTag();
                 if(m != null)
@@ -219,6 +253,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 PlaceMarkers();
             }
         });
+
+
     }
 
     public void ZoomCameraToCurrentPosition()
@@ -268,12 +304,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 options.icon(BitmapDescriptorFactory.fromResource(R.drawable.greymarkersmall));
             }
 
-            Marker markerController = new Marker();
-            markerController.setVraag_id(markerLocations.get(i).getVraag_id());
+            Marker markerEntity = new Marker();
+            markerEntity.setVraag_id(markerLocations.get(i).getVraag_id());
+            markerEntity.setId(markerLocations.get(i).getId());
+            markerEntity.setInfo(markerLocations.get(i).getInfo());
+            markerEntity.setLatitude(markerLocations.get(i).getLatitude());
+            markerEntity.setLongitude(markerLocations.get(i).getLongitude());
+            markerEntity.setName(markerLocations.get(i).getName());
 
 
            com.google.android.gms.maps.model.Marker m = mMap.addMarker(options);
-            m.setTag(markerController);
+            m.setTag(markerEntity);
         }
     }
 
@@ -510,6 +551,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     questionData.add(jo.getString("answer_2"));
                     questionData.add(jo.getString("answer_3"));
                     questionData.add(jo.getString("answer_4"));
+                    questionData.add(jo.getString("correct_answer"));
                 }
             }catch(MalformedURLException e)
             {
@@ -541,6 +583,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             answerRadio2.setText((String) questionData.get(2));
             answerRadio3.setText((String) questionData.get(3));
             answerRadio4.setText((String) questionData.get(4));
+            correctAnswer = questionData.get(5);
         }
 
         @Override
