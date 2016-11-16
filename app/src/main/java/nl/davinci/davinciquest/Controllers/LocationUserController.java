@@ -147,7 +147,7 @@ public class LocationUserController {
                     JSONObject obj = new JSONObject();
                     obj.put("locatie_id" , locationUser[0].getLocation_id());
                     obj.put("user_id" , locationUser[0].getUser_id());
-                    obj.put("answered_correct" , 1);
+                    obj.put("answered_correct" , locationUser[0].getAnswered_correct());
 
                     // locationUser[0].getAnswered_correct()
                     wr.writeBytes(obj.toString());

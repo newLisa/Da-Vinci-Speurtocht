@@ -312,7 +312,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             markerEntity.setLongitude(markerLocations.get(i).getLongitude());
             markerEntity.setName(markerLocations.get(i).getName());
 
-
            com.google.android.gms.maps.model.Marker m = mMap.addMarker(options);
             m.setTag(markerEntity);
         }
