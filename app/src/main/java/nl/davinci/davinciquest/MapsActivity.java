@@ -1,9 +1,7 @@
 package nl.davinci.davinciquest;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -17,13 +15,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
-import android.text.InputFilter;
-import android.text.InputType;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -41,8 +35,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
@@ -61,8 +53,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import nl.davinci.davinciquest.Controllers.LocationUserController;
 import nl.davinci.davinciquest.Controllers.QuestController;
@@ -75,9 +65,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 {
     private GoogleMap mMap;
     GoogleApiClient mGoogleApiClient;
-    Button markerButton, speurtochtButton, answerButton;
+    Button answerButton;
     FloatingActionButton qrButton, startButton;
     int markerCount = 1;
+    float maxDistanceVisibleMarker = 100;
     ArrayList<Marker> markerLocations;
     int speurtochtId, user_id;
     Quest quest = new Quest();
@@ -87,7 +78,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     RadioGroup answerRadioGroup;
     RadioButton answerRadio1, answerRadio2, answerRadio3, answerRadio4;
     String correctAnswer;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,8 +113,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
+     * This is where we can add markers or lines, add listeners or move the camera.
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
@@ -206,14 +195,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public  void onConnected(Bundle connectionHint)
     {
-        //draw the circle around the current location
-//        LatLng currentLocation = GetCurrentLocation();
-//        Circle circle = mMap.addCircle(new CircleOptions()
-//                .center(new LatLng(currentLocation.latitude, currentLocation.longitude))
-//                .radius(500)
-//                .strokeColor(Color.RED)
-//                .fillColor(Color.TRANSPARENT));
-
         // Instantiates a new Polygon object and adds points to define a rectangle
         PolygonOptions rectOptions = new PolygonOptions()
                 .add(new LatLng(51.80185467344209, 4.680642485618591),
@@ -239,14 +220,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void AddButtonOnClickListeners()
     {
-//        markerButton = (Button) findViewById(R.id.currentLocMarkerButton);
-//        markerButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view)
-//            {
-//                SetMarkerAtCurrentLocation();
-//            }
-//        });
         qrButton = (FloatingActionButton) findViewById(R.id.floatingQRbutton);
         qrButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -268,8 +241,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 PlaceMarkers();
             }
         });
-
-
     }
 
     public void ZoomCameraToCurrentPosition()
@@ -293,6 +264,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void PlaceMarkers()
     {
+
+        mMap.clear();
         Boolean started = false;
         userQuestList = questUserController.getQuestByUserId(user_id);
         for (int i = 0; i < userQuestList.size(); i++)   {
@@ -317,6 +290,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             else
             {
                 options.icon(BitmapDescriptorFactory.fromResource(R.drawable.greymarkersmall));
+            }
+
+            LatLng currentPos = GetCurrentLocation();
+            float[] result = new float[1];
+
+            Location.distanceBetween(currentPos.latitude,currentPos.longitude,markerPos.latitude,markerPos.longitude,result);
+            if (result[0] > maxDistanceVisibleMarker && started)
+            {
+                options.visible(false);
             }
 
             Marker markerEntity = new Marker();
@@ -473,7 +455,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         protected void onPostExecute(ArrayList locations)
         {
             markerLocations = locations;
-            PlaceMarkers();
+
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    PlaceMarkers();
+                }
+            }, 1000);
         }
 
         @Override
