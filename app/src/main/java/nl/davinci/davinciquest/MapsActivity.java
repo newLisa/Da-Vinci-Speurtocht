@@ -45,6 +45,8 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -205,12 +207,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public  void onConnected(Bundle connectionHint)
     {
         //draw the circle around the current location
-        LatLng currentLocation = GetCurrentLocation();
-        Circle circle = mMap.addCircle(new CircleOptions()
-                .center(new LatLng(currentLocation.latitude, currentLocation.longitude))
-                .radius(500)
-                .strokeColor(Color.RED)
-                .fillColor(Color.TRANSPARENT));
+//        LatLng currentLocation = GetCurrentLocation();
+//        Circle circle = mMap.addCircle(new CircleOptions()
+//                .center(new LatLng(currentLocation.latitude, currentLocation.longitude))
+//                .radius(500)
+//                .strokeColor(Color.RED)
+//                .fillColor(Color.TRANSPARENT));
+
+        // Instantiates a new Polygon object and adds points to define a rectangle
+        PolygonOptions rectOptions = new PolygonOptions()
+                .add(new LatLng(51.80185467344209, 4.680642485618591),
+                        new LatLng(51.799180878825474, 4.678325057029724),
+                        new LatLng(51.79726334535511, 4.677445292472839),
+                        new LatLng(51.79665953765794, 4.679537415504456),
+                        new LatLng(51.797814064006644, 4.685030579566956),
+                        new LatLng(51.80013629759001,4.685245156288147));
+        rectOptions.strokeColor(Color.RED);
+
+// Get back the mutable Polygon
+        Polygon polygon = mMap.addPolygon(rectOptions);
 
         //use Handler to start zoom function after 3 seconds
         final Handler handler = new Handler();
