@@ -30,11 +30,11 @@ public class LocationUserController {
     ArrayList<LocationUser> locationUserList = new ArrayList();
     StreamReader streamReader = new StreamReader();
 
-    public ArrayList<LocationUser> getLocationUserArray(Integer userId)
+    public ArrayList<LocationUser> getLocationUserArray(Integer userId, Integer questId)
     {
         LocationUserController.LocationUserArrayBackground locationUserArrayBackground = new LocationUserController.LocationUserArrayBackground();
         try {
-            locationUserList = locationUserArrayBackground.execute(userId).get();
+            locationUserList = locationUserArrayBackground.execute(userId, questId).get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -49,14 +49,14 @@ public class LocationUserController {
     {
 
         @Override
-        protected ArrayList<LocationUser> doInBackground(Integer... userId) {
+        protected ArrayList<LocationUser> doInBackground(Integer... ids) {
 
 
             ArrayList<LocationUser> locationUserList = new ArrayList<>();
 
             try
             {
-                URL url = new URL("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/locationuser/" + userId);
+                URL url = new URL("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/locationuser/" + ids[0] + "/" + ids[1]);
 
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
@@ -76,7 +76,8 @@ public class LocationUserController {
                         LocationUser bgLocationUser = new LocationUser();
                         bgLocationUser.setId(Integer.parseInt(jo.getString("id")));
                         bgLocationUser.setUser_id(Integer.parseInt(jo.getString("user_id")));
-                        bgLocationUser.setLocation_id(Integer.parseInt(jo.getString("user_id")));
+                        bgLocationUser.setLocation_id(Integer.parseInt(jo.getString("location_id")));
+                        bgLocationUser.setQuest_id(Integer.parseInt(jo.getString("quest_id")));
                         bgLocationUser.setAnswered_correct(Integer.parseInt(jo.getString("answered_correct")));
 
                         locationUserList.add(bgLocationUser);
@@ -147,6 +148,7 @@ public class LocationUserController {
                     JSONObject obj = new JSONObject();
                     obj.put("locatie_id" , locationUser[0].getLocation_id());
                     obj.put("user_id" , locationUser[0].getUser_id());
+                    obj.put("quest_id" , locationUser[0].getQuest_id());
                     obj.put("answered_correct" , locationUser[0].getAnswered_correct());
 
                     // locationUser[0].getAnswered_correct()

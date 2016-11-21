@@ -11,6 +11,8 @@ public class LocationUser {
 
     int user_id;
 
+    int quest_id;
+
     int answered_correct;
 
     public int getId() {
@@ -35,6 +37,14 @@ public class LocationUser {
 
     public void setUser_id(int user_id) {
         this.user_id = user_id;
+    }
+
+    public int getQuest_id() {
+        return quest_id;
+    }
+
+    public void setQuest_id(int quest_id) {
+        this.quest_id = quest_id;
     }
 
     public int getAnswered_correct() {

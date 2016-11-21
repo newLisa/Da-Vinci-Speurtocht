@@ -53,6 +53,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 import nl.davinci.davinciquest.Controllers.LocationUserController;
 import nl.davinci.davinciquest.Controllers.QuestController;
@@ -78,9 +79,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     RadioGroup answerRadioGroup;
     RadioButton answerRadio1, answerRadio2, answerRadio3, answerRadio4;
     String correctAnswer;
+    Boolean started = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
+
         //ask for location permission
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         super.onCreate(savedInstanceState);
@@ -103,11 +108,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         AddButtonOnClickListeners();
-
+        userQuestList = questUserController.getQuestByUserId(user_id);
+        for (int i = 0; i < userQuestList.size(); i++)   {
+            if (userQuestList.get(i).getId() == quest.getId())  {
+                started = true;
+            }
+        }
         if (speurtochtId > 0) {
             GetSpeurtochtJsonData gs = new GetSpeurtochtJsonData();
             gs.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtlocatie/" + speurtochtId);
         }
+
+
+
     }
 
     /**
@@ -132,7 +145,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(final com.google.android.gms.maps.model.Marker marker) {
-
+            if (started) {
                 final Dialog dialog = new Dialog(MapsActivity.this);
                 dialog.setContentView(R.layout.custom_marker_dialog);
                 dialog.setTitle(marker.getTitle());
@@ -152,8 +165,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 answerButton = (Button) dialog.findViewById(R.id.answerButton);
                 answerButton.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View view)
-                    {
+                    public void onClick(View view) {
                         Marker currentLocation = (Marker) marker.getTag();
                         answerRadioGroup = (RadioGroup) dialog.findViewById(R.id.answerRadioGroup);
                         int selectedRadiobuttonId = answerRadioGroup.getCheckedRadioButtonId();
@@ -162,13 +174,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         LocationUser locationUser = new LocationUser();
                         locationUser.setUser_id(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt("user_id", 0));
                         locationUser.setLocation_id(currentLocation.getId());
+                        locationUser.setQuest_id(quest.getId());
                         LocationUserController locationUserController = new LocationUserController();
-                        if (correctAnswer.equals(answer))    {
+                        if (correctAnswer.equals(answer)) {
                             locationUser.setAnswered_correct(1);
                             marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
-                        }
-                        else
-                        {
+                        } else {
                             locationUser.setAnswered_correct(0);
                             marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greymarkersmall));
                         }
@@ -177,17 +188,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 });
 
-                Marker m =(Marker) marker.getTag();
-                if(m != null)
-                {
+                Marker m = (Marker) marker.getTag();
+                if (m != null) {
                     int vraagId = m.getVraag_id();
                     GetQuestion getq = new GetQuestion();
                     getq.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/vraag/" + Integer.toString(vraagId));
                 }
 
                 dialog.show();
+            }
 
                 return true;
+
             }
         });
     }
@@ -266,18 +278,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     {
 
         mMap.clear();
-        Boolean started = false;
-        userQuestList = questUserController.getQuestByUserId(user_id);
-        for (int i = 0; i < userQuestList.size(); i++)   {
-            if (userQuestList.get(i).getId() == quest.getId())  {
-                started = true;
-            }
-        }
+
 
         for (int i = 0; i < markerLocations.size(); i++)
         {
             MarkerOptions options = new MarkerOptions();
-
+            LocationUserController locationUserController = new LocationUserController();
+            ArrayList<LocationUser> locationUserList = new ArrayList();
             LatLng markerPos = new LatLng(markerLocations.get(i).getLatitude(),markerLocations.get(i).getLongitude());
             options.position(markerPos);
             options.title(markerLocations.get(i).getName());
@@ -285,6 +292,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             if (started)
             {
+/*                locationUserList = locationUserController.getLocationUserArray(user_id, quest.getId());
+                for (int r = 0; r < locationUserList.size(); r++)
+                {
+
+                }*/
                 options.icon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
             }
             else
