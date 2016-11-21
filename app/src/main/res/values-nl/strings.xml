@@ -21,4 +21,6 @@
     <string name="error_nickname_invalid">Nickname klopt niet</string>
     <string name="error_retry">Probeer opnieuw</string>
     <string name="prompt_nickname">Kies nickname</string>
+    <string name="title_activity_login">Log in</string>
+    <string name="scan_result">Scan resultaat</string>
 </resources>

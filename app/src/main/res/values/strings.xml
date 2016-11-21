@@ -25,9 +25,11 @@
     <string name="qr_scanner">QR Scanner</string>
     <string name="database">Database</string>
 
+
     <!-- Strings related to permissions -->
     <string name="error_location_refused">Acces to location denied.This app doesn\'t work without location enabled.</string>
     <string name="error_camera_refused">Acces to camera denied. The QR scanner will not work without the camera permission enabled.</string>
     <string name="prompt_password">Password (optional)</string>
+    <string name="error_field_required">This field is requite</string>
 
 </resources>
