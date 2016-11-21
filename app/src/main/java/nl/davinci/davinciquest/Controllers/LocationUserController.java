@@ -78,7 +78,7 @@ public class LocationUserController {
                         bgLocationUser.setUser_id(Integer.parseInt(jo.getString("user_id")));
                         bgLocationUser.setLocation_id(Integer.parseInt(jo.getString("location_id")));
                         bgLocationUser.setQuest_id(Integer.parseInt(jo.getString("quest_id")));
-                        bgLocationUser.setAnswered_correct(Integer.parseInt(jo.getString("answered_correct")));
+                        bgLocationUser.setAnswered_correct(jo.getString("answered_correct"));
 
                         locationUserList.add(bgLocationUser);
 

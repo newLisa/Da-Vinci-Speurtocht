@@ -51,7 +51,15 @@ public class LocationUser {
         return answered_correct;
     }
 
-    public void setAnswered_correct(int answered_correct) {
-        this.answered_correct = answered_correct;
+    public void setAnswered_correct(String answered_correct) {
+
+        if (answered_correct.equals("true"))
+        {
+            this.answered_correct = 1;
+        }
+        else
+        {
+            this.answered_correct = 0;
+        }
     }
 }

@@ -177,11 +177,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         locationUser.setQuest_id(quest.getId());
                         LocationUserController locationUserController = new LocationUserController();
                         if (correctAnswer.equals(answer)) {
-                            locationUser.setAnswered_correct(1);
+                            locationUser.setAnswered_correct("true");
                             marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
                         } else {
-                            locationUser.setAnswered_correct(0);
-                            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greymarkersmall));
+                            locationUser.setAnswered_correct("false");
+                            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
                         }
                         locationUserController.postLocationUser(locationUser);
                         dialog.cancel();
@@ -250,6 +250,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 PostKoppelTochtUser pktu = new PostKoppelTochtUser();
                 pktu.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtuser/");
                 mMap.clear();
+                started = true;
                 PlaceMarkers();
             }
         });
@@ -278,13 +279,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     {
 
         mMap.clear();
-
-
+        LocationUserController locationUserController = new LocationUserController();
+        ArrayList<LocationUser> locationUserList = new ArrayList();
+        locationUserList = locationUserController.getLocationUserArray(user_id, quest.getId());
         for (int i = 0; i < markerLocations.size(); i++)
         {
             MarkerOptions options = new MarkerOptions();
-            LocationUserController locationUserController = new LocationUserController();
-            ArrayList<LocationUser> locationUserList = new ArrayList();
             LatLng markerPos = new LatLng(markerLocations.get(i).getLatitude(),markerLocations.get(i).getLongitude());
             options.position(markerPos);
             options.title(markerLocations.get(i).getName());
@@ -292,12 +292,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             if (started)
             {
-/*                locationUserList = locationUserController.getLocationUserArray(user_id, quest.getId());
+
                 for (int r = 0; r < locationUserList.size(); r++)
                 {
+                    if (locationUserList.get(r).getLocation_id() == markerLocations.get(i).getId())
+                    {
+                        if (locationUserList.get(r).getAnswered_correct() == 1)
+                        {
+                            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
+                        }
+                        else
+                        {
+                            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
+                        }
+                    }
+                    else
+                    {
+                        options.icon(BitmapDescriptorFactory.fromResource(R.drawable.orangemarkersmall));
+                    }
+                }
 
-                }*/
-                options.icon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
             }
             else
             {
