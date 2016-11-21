@@ -295,11 +295,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             LatLng currentPos = GetCurrentLocation();
             float[] result = new float[1];
 
-            Location.distanceBetween(currentPos.latitude,currentPos.longitude,markerPos.latitude,markerPos.longitude,result);
+            /*Location.distanceBetween(currentPos.latitude,currentPos.longitude,markerPos.latitude,markerPos.longitude,result);
             if (result[0] > maxDistanceVisibleMarker && started)
             {
                 options.visible(false);
-            }
+            }*/
 
             Marker markerEntity = new Marker();
             markerEntity.setVraag_id(markerLocations.get(i).getVraag_id());

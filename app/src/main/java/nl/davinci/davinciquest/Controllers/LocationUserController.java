@@ -30,11 +30,11 @@ public class LocationUserController {
     ArrayList<LocationUser> locationUserList = new ArrayList();
     StreamReader streamReader = new StreamReader();
 
-    public ArrayList<LocationUser> getLocationUserArray()
+    public ArrayList<LocationUser> getLocationUserArray(Integer userId)
     {
         LocationUserController.LocationUserArrayBackground locationUserArrayBackground = new LocationUserController.LocationUserArrayBackground();
         try {
-            locationUserList = locationUserArrayBackground.execute().get();
+            locationUserList = locationUserArrayBackground.execute(userId).get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -45,18 +45,18 @@ public class LocationUserController {
         return locationUserList;
     }
 
-    public class LocationUserArrayBackground extends AsyncTask<String, String, ArrayList<LocationUser>>
+    public class LocationUserArrayBackground extends AsyncTask<Integer, String, ArrayList<LocationUser>>
     {
 
         @Override
-        protected ArrayList<LocationUser> doInBackground(String... method) {
+        protected ArrayList<LocationUser> doInBackground(Integer... userId) {
 
 
             ArrayList<LocationUser> locationUserList = new ArrayList<>();
 
             try
             {
-                URL url = new URL("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/locationuser");
+                URL url = new URL("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/locationuser/" + userId);
 
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
