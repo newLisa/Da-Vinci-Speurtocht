@@ -83,9 +83,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-
-
         //ask for location permission
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         super.onCreate(savedInstanceState);
@@ -118,9 +115,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             GetSpeurtochtJsonData gs = new GetSpeurtochtJsonData();
             gs.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtlocatie/" + speurtochtId);
         }
-
-
-
     }
 
     /**
@@ -197,15 +191,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 dialog.show();
             }
-
                 return true;
-
             }
         });
     }
 
-    @Override
-    public  void onConnected(Bundle connectionHint)
+    void DrawPolygon()
     {
         // Instantiates a new Polygon object and adds points to define a rectangle
         PolygonOptions rectOptions = new PolygonOptions()
@@ -217,9 +208,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         new LatLng(51.80013629759001,4.685245156288147));
         rectOptions.strokeColor(Color.RED);
 
-// Get back the mutable Polygon
+        // Get back the mutable Polygon
         Polygon polygon = mMap.addPolygon(rectOptions);
+    }
 
+    @Override
+    public  void onConnected(Bundle connectionHint)
+    {
         //use Handler to start zoom function after 3 seconds
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -277,8 +272,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void PlaceMarkers()
     {
-
         mMap.clear();
+        DrawPolygon();
         LocationUserController locationUserController = new LocationUserController();
         ArrayList<LocationUser> locationUserList = new ArrayList();
         locationUserList = locationUserController.getLocationUserArray(user_id, quest.getId());
@@ -292,7 +287,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             if (started)
             {
-
+                boolean found = false;
                 for (int r = 0; r < locationUserList.size(); r++)
                 {
                     if (locationUserList.get(r).getLocation_id() == markerLocations.get(i).getId())
@@ -300,18 +295,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         if (locationUserList.get(r).getAnswered_correct() == 1)
                         {
                             options.icon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
+                            found = true;
+                            break;
                         }
                         else
                         {
                             options.icon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
+                            found = true;
+                            break;
                         }
                     }
-                    else
-                    {
-                        options.icon(BitmapDescriptorFactory.fromResource(R.drawable.orangemarkersmall));
-                    }
                 }
-
+                if (!found)
+                {
+                    options.icon(BitmapDescriptorFactory.fromResource(R.drawable.orangemarkersmall));
+                }
             }
             else
             {
