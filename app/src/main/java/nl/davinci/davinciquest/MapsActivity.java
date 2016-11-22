@@ -80,6 +80,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     RadioButton answerRadio1, answerRadio2, answerRadio3, answerRadio4;
     String correctAnswer;
     Boolean started = false;
+    ArrayList<LocationUser> locationUserList = new ArrayList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,7 +140,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(final com.google.android.gms.maps.model.Marker marker) {
-            if (started) {
+                LocationUserController locationUserController = new LocationUserController();
+                locationUserList = locationUserController.getLocationUserArray(user_id, quest.getId());
+
+                Marker markerEntity = new Marker();
+                markerEntity = (Marker) marker.getTag();
+                int answered = 0;
+
+                for (int i = 0; i < locationUserList.size(); i++)
+                {
+                    if (locationUserList.get(i).getLocation_id() == markerEntity.getId())
+                    {
+                        answered = locationUserList.get(i).getAnswered();
+                        if (answered == 1)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                if (started && answered != 1) {
                 final Dialog dialog = new Dialog(MapsActivity.this);
                 dialog.setContentView(R.layout.custom_marker_dialog);
                 dialog.setTitle(marker.getTitle());
@@ -170,13 +190,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         locationUser.setLocation_id(currentLocation.getId());
                         locationUser.setQuest_id(quest.getId());
                         LocationUserController locationUserController = new LocationUserController();
+
                         if (correctAnswer.equals(answer)) {
                             locationUser.setAnswered_correct("true");
                             marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
-                        } else {
+                        }
+                        else {
                             locationUser.setAnswered_correct("false");
                             marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
                         }
+                        locationUser.setAnswered("true");
                         locationUserController.postLocationUser(locationUser);
                         dialog.cancel();
                     }
@@ -275,7 +298,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.clear();
         DrawPolygon();
         LocationUserController locationUserController = new LocationUserController();
-        ArrayList<LocationUser> locationUserList = new ArrayList();
         locationUserList = locationUserController.getLocationUserArray(user_id, quest.getId());
         for (int i = 0; i < markerLocations.size(); i++)
         {
@@ -391,13 +413,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onConnectionSuspended(int cause)
     {
-
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult result)
     {
-
     }
 
     /**

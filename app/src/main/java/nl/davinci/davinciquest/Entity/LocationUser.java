@@ -15,6 +15,8 @@ public class LocationUser {
 
     int answered_correct;
 
+    int answered;
+
     public int getId() {
         return id;
     }
@@ -60,6 +62,23 @@ public class LocationUser {
         else
         {
             this.answered_correct = 0;
+        }
+    }
+
+    public int getAnswered()
+    {
+        return answered;
+    }
+
+    public void setAnswered(String answered)
+    {
+        if (answered.equals("true"))
+        {
+            this.answered = 1;
+        }
+        else
+        {
+            this.answered = 0;
         }
     }
 }

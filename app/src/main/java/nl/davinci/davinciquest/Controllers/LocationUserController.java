@@ -41,7 +41,6 @@ public class LocationUserController {
             e.printStackTrace();
         }
 
-
         return locationUserList;
     }
 
@@ -50,7 +49,6 @@ public class LocationUserController {
 
         @Override
         protected ArrayList<LocationUser> doInBackground(Integer... ids) {
-
 
             ArrayList<LocationUser> locationUserList = new ArrayList<>();
 
@@ -79,9 +77,9 @@ public class LocationUserController {
                         bgLocationUser.setLocation_id(Integer.parseInt(jo.getString("location_id")));
                         bgLocationUser.setQuest_id(Integer.parseInt(jo.getString("quest_id")));
                         bgLocationUser.setAnswered_correct(jo.getString("answered_correct"));
+                        bgLocationUser.setAnswered(jo.getString("answered"));
 
                         locationUserList.add(bgLocationUser);
-
                     }
                 }
             }catch(MalformedURLException e)
@@ -109,7 +107,6 @@ public class LocationUserController {
         @Override
         protected void onPostExecute(ArrayList<LocationUser> locationUserList)
         {
-
         }
 
         @Override
@@ -150,6 +147,7 @@ public class LocationUserController {
                     obj.put("user_id" , locationUser[0].getUser_id());
                     obj.put("quest_id" , locationUser[0].getQuest_id());
                     obj.put("answered_correct" , locationUser[0].getAnswered_correct());
+                    obj.put("answered", locationUser[0].getAnswered());
 
                     // locationUser[0].getAnswered_correct()
                     wr.writeBytes(obj.toString());
@@ -179,7 +177,6 @@ public class LocationUserController {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             Log.e("Response", "" + server_response);
-
         }
     }
 }
