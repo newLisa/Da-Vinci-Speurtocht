@@ -19,16 +19,6 @@
     <!-- A CardView that contains a TextView -->
 
     <Button
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:text="Highscores"
-        android:id="@+id/databaseButton"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="true" />
-
-    <Button
         android:text="@string/field_confirm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -53,33 +43,16 @@
         android:imeOptions="actionDone"
         android:maxLines="1" />
 
-    <Button
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:text="Clear Data"
-        android:id="@+id/ClearButton"
-        android:layout_above="@+id/databaseButton"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/debugging_menu"
-        android:id="@+id/textView"
-        android:layout_above="@+id/ClearButton"
-        android:layout_alignParentStart="true"/>
-
     <ListView
         android:id="@+id/home_speurtocht_list"
         android:layout_width="wrap_content"
         android:layout_height="100dp"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/textView3"
-        android:layout_above="@+id/textView" />
+        android:layout_alignParentBottom="true" />
 
     <TextView
-        android:text="Available Quests"
+        android:text="@string/available_quests"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/editText"
