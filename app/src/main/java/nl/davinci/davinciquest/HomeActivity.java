@@ -1,6 +1,7 @@
 package nl.davinci.davinciquest;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -51,6 +52,7 @@ public class HomeActivity extends AppCompatActivity {
     int pin, user_id;
     ArrayList<Quest> questList = new ArrayList();
     ArrayList<Quest> activeQuestList = new ArrayList();
+    ProgressDialog pd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -370,6 +372,7 @@ public class HomeActivity extends AppCompatActivity {
         protected void onPreExecute()
         {
             super.onPreExecute();
+            pd = ProgressDialog.show(HomeActivity.this, "Loading", "Please wait...");
         }
 
         @Override
@@ -506,6 +509,7 @@ public class HomeActivity extends AppCompatActivity {
                     }
                 }
             }
+            pd.dismiss();
         }
 
         @Override

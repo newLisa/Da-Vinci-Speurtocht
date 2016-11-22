@@ -2,6 +2,7 @@ package nl.davinci.davinciquest;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -81,6 +82,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     String correctAnswer;
     Boolean started = false;
     ArrayList<LocationUser> locationUserList = new ArrayList();
+    ProgressDialog pd;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -238,14 +241,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public  void onConnected(Bundle connectionHint)
     {
-        //use Handler to start zoom function after 3 seconds
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ZoomCameraToCurrentPosition();
-            }
-        }, 1500);
     }
 
     public void AddButtonOnClickListeners()
@@ -339,9 +334,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
             LatLng currentPos = GetCurrentLocation();
-            float[] result = new float[1];
-
-            /*Location.distanceBetween(currentPos.latitude,currentPos.longitude,markerPos.latitude,markerPos.longitude,result);
+            /*float[] result = new float[1];
+            Location.distanceBetween(currentPos.latitude,currentPos.longitude,markerPos.latitude,markerPos.longitude,result);
             if (result[0] > maxDistanceVisibleMarker && started)
             {
                 options.visible(false);
@@ -357,6 +351,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
            com.google.android.gms.maps.model.Marker m = mMap.addMarker(options);
             m.setTag(markerEntity);
+            pd.dismiss();
+            ZoomCameraToCurrentPosition();
         }
     }
 
@@ -493,6 +489,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         protected void onPreExecute()
         {
             super.onPreExecute();
+            pd = ProgressDialog.show(MapsActivity.this, "Loading", "Please wait...");
+
         }
 
         @Override
@@ -506,7 +504,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 public void run() {
                     PlaceMarkers();
                 }
-            }, 1000);
+            }, 500);
         }
 
         @Override
