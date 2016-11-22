@@ -23,4 +23,8 @@
     <string name="prompt_nickname">Kies nickname</string>
     <string name="title_activity_login">Log in</string>
     <string name="scan_result">Scan resultaat</string>
+    <string name="title_activity_maps">Kaart</string>
+    <string name="available_quests">Beschikbare speurtochten</string>
+    <string name="clear_data">Verwijder data</string>
+    <string name="debugging_menu" translatable="false"></string>
 </resources>

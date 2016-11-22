@@ -86,27 +86,19 @@ public class HomeActivity extends AppCompatActivity {
     public void SetButtonOnClickListeners()
     {
         //setup all the main menu buttons
-        Button clearBut = (Button) findViewById(R.id.ClearButton);
-        clearBut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
 
-                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                SharedPreferences.Editor editor = sharedPrefs.edit();
-                editor.clear();
-                editor.commit();
-            }
-        });
+//        Button clearBut = (Button) findViewById(R.id.ClearButton);
+//        clearBut.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+//                SharedPreferences.Editor editor = sharedPrefs.edit();
+//                editor.clear();
+//                editor.commit();
+//            }
+//        });
 
-        Button databaseButton = (Button) findViewById(R.id.databaseButton);
-        databaseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view)
-            {
-                Intent i = new Intent(getApplicationContext(),DatabaseListActivity.class);
-                startActivity(i);
-            }
-        });
 
         EditText et = (EditText) findViewById(R.id.editText);
         et.clearFocus();
@@ -230,6 +222,20 @@ public class HomeActivity extends AppCompatActivity {
             builder.show();
         }
 
+        //Debugging option: clear data. Requires a restart
+        if (id == R.id.action_clearData) {
+            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            SharedPreferences.Editor editor = sharedPrefs.edit();
+            editor.clear();
+            editor.commit();
+        }
+
+        //Future highscore option
+        if (id == R.id.action_showDatabase) {
+                    Intent i = new Intent(getApplicationContext(), DatabaseListActivity.class);
+                    startActivity(i);
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -313,7 +319,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    //this class get the speurtochten to diplay in the home menu
+    //this class get the quests to diplay in the home menu
     public class GetSpeurTochtList extends AsyncTask<String, String, ArrayList<Quest>>
     {
         @Override
@@ -407,7 +413,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    //this class get the speurtochten to diplay in the home menu
+    //this class get the quests to diplay in the home menu
     public class GetActiveSpeurTochtList extends AsyncTask<String, String, ArrayList<Quest>>
     {
         @Override
