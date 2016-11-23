@@ -1,12 +1,15 @@
 package nl.davinci.davinciquest;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -27,6 +30,7 @@ import android.widget.TextView;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
+import com.google.android.gms.cast.Cast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -56,6 +60,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ScheduledExecutorService;
 
 import nl.davinci.davinciquest.Controllers.LocationUserController;
 import nl.davinci.davinciquest.Controllers.QuestController;
@@ -64,7 +71,7 @@ import nl.davinci.davinciquest.Entity.LocationUser;
 import nl.davinci.davinciquest.Entity.Marker;
 import nl.davinci.davinciquest.Entity.Quest;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback ,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback ,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener/*, LocationListener*/
 {
     private GoogleMap mMap;
     GoogleApiClient mGoogleApiClient;
@@ -84,17 +91,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Boolean started = false;
     ArrayList<LocationUser> locationUserList = new ArrayList();
     ProgressDialog pd;
+    protected LocationManager locationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //ask for location permission
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         Bundle extras = getIntent().getExtras();
         speurtochtId = extras.getInt("id");
         GetQuestData(speurtochtId);
         user_id = extras.getInt("user_id");
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -163,64 +173,67 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 }
 
-                if (started && answered != 1) {
-                final Dialog dialog = new Dialog(MapsActivity.this);
-                dialog.setContentView(R.layout.custom_marker_dialog);
-                dialog.setTitle(marker.getTitle());
+                if (started && answered != 1)
+                {
+                    final Dialog dialog = new Dialog(MapsActivity.this);
+                    dialog.setContentView(R.layout.custom_marker_dialog);
+                    dialog.setTitle(marker.getTitle());
 
-                ImageView img = (ImageView) dialog.findViewById(R.id.custom_dialog_image);
-                img.setImageResource(R.drawable.paardenbloem);
+                    ImageView img = (ImageView) dialog.findViewById(R.id.custom_dialog_image);
+                    img.setImageResource(R.drawable.paardenbloem);
 
-                TextView infoTextView = (TextView) dialog.findViewById(R.id.custom_dialog_info);
-                infoTextView.setText(marker.getSnippet());
+                    TextView infoTextView = (TextView) dialog.findViewById(R.id.custom_dialog_info);
+                    infoTextView.setText(marker.getSnippet());
 
-                questionText = (TextView) dialog.findViewById(R.id.QuestionText);
-                answerRadio1 = (RadioButton) dialog.findViewById(R.id.answerRadio1);
-                answerRadio2 = (RadioButton) dialog.findViewById(R.id.answerRadio2);
-                answerRadio3 = (RadioButton) dialog.findViewById(R.id.answerRadio3);
-                answerRadio4 = (RadioButton) dialog.findViewById(R.id.answerRadio4);
+                    questionText = (TextView) dialog.findViewById(R.id.QuestionText);
+                    answerRadio1 = (RadioButton) dialog.findViewById(R.id.answerRadio1);
+                    answerRadio2 = (RadioButton) dialog.findViewById(R.id.answerRadio2);
+                    answerRadio3 = (RadioButton) dialog.findViewById(R.id.answerRadio3);
+                    answerRadio4 = (RadioButton) dialog.findViewById(R.id.answerRadio4);
 
-                answerButton = (Button) dialog.findViewById(R.id.answerButton);
-                answerButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Marker currentLocation = (Marker) marker.getTag();
-                        answerRadioGroup = (RadioGroup) dialog.findViewById(R.id.answerRadioGroup);
-                        int selectedRadiobuttonId = answerRadioGroup.getCheckedRadioButtonId();
-                        RadioButton selectedRadioButton = (RadioButton) answerRadioGroup.findViewById(selectedRadiobuttonId);
-                        String answer = selectedRadioButton.getText().toString();
-                        LocationUser locationUser = new LocationUser();
-                        locationUser.setUser_id(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt("user_id", 0));
-                        locationUser.setLocation_id(currentLocation.getId());
-                        locationUser.setQuest_id(quest.getId());
-                        LocationUserController locationUserController = new LocationUserController();
+                    answerButton = (Button) dialog.findViewById(R.id.answerButton);
+                    answerButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Marker currentLocation = (Marker) marker.getTag();
+                            answerRadioGroup = (RadioGroup) dialog.findViewById(R.id.answerRadioGroup);
+                            int selectedRadiobuttonId = answerRadioGroup.getCheckedRadioButtonId();
+                            RadioButton selectedRadioButton = (RadioButton) answerRadioGroup.findViewById(selectedRadiobuttonId);
+                            String answer = selectedRadioButton.getText().toString();
+                            LocationUser locationUser = new LocationUser();
+                            locationUser.setUser_id(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt("user_id", 0));
+                            locationUser.setLocation_id(currentLocation.getId());
+                            locationUser.setQuest_id(quest.getId());
+                            LocationUserController locationUserController = new LocationUserController();
 
-                        if (correctAnswer.equals(answer)) {
-                            locationUser.setAnswered_correct("true");
-                            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
+                            if (correctAnswer.equals(answer)) {
+                                locationUser.setAnswered_correct("true");
+                                marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
+                            }
+                            else {
+                                locationUser.setAnswered_correct("false");
+                                marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
+                            }
+                            locationUser.setAnswered("true");
+                            locationUserController.postLocationUser(locationUser);
+                            dialog.cancel();
                         }
-                        else {
-                            locationUser.setAnswered_correct("false");
-                            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
-                        }
-                        locationUser.setAnswered("true");
-                        locationUserController.postLocationUser(locationUser);
-                        dialog.cancel();
+                    });
+
+                    Marker m = (Marker) marker.getTag();
+                    if (m != null) {
+                        int vraagId = m.getVraag_id();
+                        GetQuestion getq = new GetQuestion();
+                        getq.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/vraag/" + Integer.toString(vraagId));
                     }
-                });
 
-                Marker m = (Marker) marker.getTag();
-                if (m != null) {
-                    int vraagId = m.getVraag_id();
-                    GetQuestion getq = new GetQuestion();
-                    getq.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/vraag/" + Integer.toString(vraagId));
+                    dialog.show();
                 }
-
-                dialog.show();
-            }
                 return true;
             }
         });
+
+
     }
 
     void DrawPolygon()
@@ -242,6 +255,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public  void onConnected(Bundle connectionHint)
     {
+
     }
 
     public void AddButtonOnClickListeners()
@@ -305,7 +319,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 options.position(markerPos);
                 options.title(markerLocations.get(i).getName());
                 options.snippet(markerLocations.get(i).getInfo());
-
                 if (started)
                 {
                     boolean found = false;
@@ -355,18 +368,57 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 com.google.android.gms.maps.model.Marker m = mMap.addMarker(options);
                 m.setTag(markerEntity);
-                pd.dismiss();
-                ZoomCameraToCurrentPosition();
+
+                markerEntity.setMapMarker(m);
+                markerLocations.set(i, markerEntity);
+
+
             }
+            pd.dismiss();
+            ZoomCameraToCurrentPosition();
+            ScheduledExecutorService schedule;
+            schedule().scheduleWithFixedDelay(new Runnable() {
+                @Override
+                public void run() {
+
+                }
+            },1 ,3L, 5);
+
+            /*new Timer().sc(new TimerTask() {
+                @Override
+                public void run() {
+                    LatLng currentPos = GetCurrentLocation();
+                    for (int i = 0; i < markerLocations.size(); i++)
+                    {
+
+                        float[] result = new float[1];
+                        Location.distanceBetween(currentPos.latitude,currentPos.longitude,markerLocations.get(i).getLatitude(),markerLocations.get(i).getLongitude(),result);
+                        if (result[0] > maxDistanceVisibleMarker && started)
+                        {
+                            markerLocations.get(i).getMapMarker().setVisible(false);
+                        }
+                        else
+                        {
+                            markerLocations.get(i).getMapMarker().setVisible(true);
+                        }
+                    }
+                }
+            }, 0, 10000);*/
         }
         else
         {
             pd.dismiss();
         }
-    }
 
+
+    }
+    /*@Override
     public void onLocationChanged(Location location)
     {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
+        builder.setTitle("IT FUCKING WORKS!!!!!");
+        builder.show();
+
         for (int i = 0; i < markerLocations.size(); i++)
         {
             LatLng currentPos = GetCurrentLocation();
@@ -374,10 +426,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Location.distanceBetween(currentPos.latitude,currentPos.longitude,markerLocations.get(i).getLatitude(),markerLocations.get(i).getLongitude(),result);
             if (result[0] > maxDistanceVisibleMarker && started)
             {
-               //hide the marker
+                markerLocations.get(i).getMapMarker().setVisible(false);
+            }
+            else
+            {
+                markerLocations.get(i).getMapMarker().setVisible(true);
             }
         }
-    }
+    }*/
 
     //Sets  marker at the users current location
     public void SetMarkerAtCurrentLocation()
@@ -683,4 +739,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         return response.toString();
     }
+
+    public class checkMarkerDistanceAndHideIfYouAreTooFarAway extends AsyncTask<ArrayList<Marker>, String, Void>
+    {
+        @Override
+        protected Void doInBackground(ArrayList<Marker>... markers) {
+            LocationManager locationManager = (LocationManager)
+                    getSystemService(Context.LOCATION_SERVICE);
+
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+            pd = ProgressDialog.show(MapsActivity.this, "Loading", "Please wait...");
+
+        }
+
+
+        protected void onPostExecute()
+        {
+
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+        }
+    }
+
 }
+
+

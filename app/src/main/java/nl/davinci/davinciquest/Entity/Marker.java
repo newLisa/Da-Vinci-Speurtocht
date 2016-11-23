@@ -12,6 +12,7 @@ public class Marker
     private double longitude;
     private int vraag_id;
     private String info;
+    private com.google.android.gms.maps.model.Marker mapMarker;
 
     public int getId()
     {
@@ -71,5 +72,13 @@ public class Marker
     public void setInfo(String info)
     {
         this.info = info;
+    }
+
+    public com.google.android.gms.maps.model.Marker getMapMarker() {
+        return mapMarker;
+    }
+
+    public void setMapMarker(com.google.android.gms.maps.model.Marker mapMarker) {
+        this.mapMarker = mapMarker;
     }
 }
