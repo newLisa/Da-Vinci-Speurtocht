@@ -7,16 +7,12 @@
     <string name="database">Database</string>
     <string name="error_camera_refused">Toegang tot camera geweigerd. De QR Scanner werkt niet zonder toegang tot de camera.</string>
     <string name="error_field_required">Dit veld is verplicht</string>
-    <string name="error_incorrect_password">Dit wachtwoord is incorrect</string>
-    <string name="error_invalid_email">Dit email adres is niet correct</string>
-    <string name="error_invalid_password">Dit wachtwoord is te kort</string>
     <string name="error_location_refused">Toegang tot locatie geweigerd. De app werkt niet zonder toegang tot je locatie.</string>
     <string name="field_confirm">Join</string>
     <string name="field_enter_id">Speurtocht ID</string>
     <string name="map">Kaart</string>
     <string name="qr_scanner">QR Scanner</string>
     <string name="prompt_password">Wachtwoord (optioneel)</string>
-    <string name="permission_rationale"></string>
     <string name="view_info">Bekijk pin en nickname</string>
     <string name="error_nickname_invalid">Nickname klopt niet</string>
     <string name="error_retry">Probeer opnieuw</string>
@@ -26,5 +22,4 @@
     <string name="title_activity_maps">Kaart</string>
     <string name="available_quests">Beschikbare speurtochten</string>
     <string name="clear_data">Verwijder data</string>
-    <string name="debugging_menu" translatable="false"></string>
 </resources>
