@@ -29,6 +29,7 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -63,7 +64,7 @@ import nl.davinci.davinciquest.Entity.LocationUser;
 import nl.davinci.davinciquest.Entity.Marker;
 import nl.davinci.davinciquest.Entity.Quest;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback ,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback ,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener
 {
     private GoogleMap mMap;
     GoogleApiClient mGoogleApiClient;
@@ -83,7 +84,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Boolean started = false;
     ArrayList<LocationUser> locationUserList = new ArrayList();
     ProgressDialog pd;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,6 +113,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         for (int i = 0; i < userQuestList.size(); i++)   {
             if (userQuestList.get(i).getId() == quest.getId())  {
                 started = true;
+                startButton.hide();
             }
         }
         if (speurtochtId > 0) {
@@ -264,6 +265,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 pktu.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtuser/");
                 mMap.clear();
                 started = true;
+                startButton.hide();
                 PlaceMarkers();
             }
         });
@@ -294,65 +296,86 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         DrawPolygon();
         LocationUserController locationUserController = new LocationUserController();
         locationUserList = locationUserController.getLocationUserArray(user_id, quest.getId());
-        for (int i = 0; i < markerLocations.size(); i++)
+        if (markerLocations.size() > 0)
         {
-            MarkerOptions options = new MarkerOptions();
-            LatLng markerPos = new LatLng(markerLocations.get(i).getLatitude(),markerLocations.get(i).getLongitude());
-            options.position(markerPos);
-            options.title(markerLocations.get(i).getName());
-            options.snippet(markerLocations.get(i).getInfo());
-
-            if (started)
+            for (int i = 0; i < markerLocations.size(); i++)
             {
-                boolean found = false;
-                for (int r = 0; r < locationUserList.size(); r++)
+                MarkerOptions options = new MarkerOptions();
+                LatLng markerPos = new LatLng(markerLocations.get(i).getLatitude(),markerLocations.get(i).getLongitude());
+                options.position(markerPos);
+                options.title(markerLocations.get(i).getName());
+                options.snippet(markerLocations.get(i).getInfo());
+
+                if (started)
                 {
-                    if (locationUserList.get(r).getLocation_id() == markerLocations.get(i).getId())
+                    boolean found = false;
+                    for (int r = 0; r < locationUserList.size(); r++)
                     {
-                        if (locationUserList.get(r).getAnswered_correct() == 1)
+                        if (locationUserList.get(r).getLocation_id() == markerLocations.get(i).getId())
                         {
-                            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
-                            found = true;
-                            break;
-                        }
-                        else
-                        {
-                            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
-                            found = true;
-                            break;
+                            if (locationUserList.get(r).getAnswered_correct() == 1)
+                            {
+                                options.icon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
+                                found = true;
+                                break;
+                            }
+                            else
+                            {
+                                options.icon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
+                                found = true;
+                                break;
+                            }
                         }
                     }
+                    if (!found)
+                    {
+                        options.icon(BitmapDescriptorFactory.fromResource(R.drawable.orangemarkersmall));
+                    }
                 }
-                if (!found)
+                else
                 {
-                    options.icon(BitmapDescriptorFactory.fromResource(R.drawable.orangemarkersmall));
+                    options.icon(BitmapDescriptorFactory.fromResource(R.drawable.greymarkersmall));
                 }
-            }
-            else
-            {
-                options.icon(BitmapDescriptorFactory.fromResource(R.drawable.greymarkersmall));
-            }
 
+                LatLng currentPos = GetCurrentLocation();
+                float[] result = new float[1];
+                Location.distanceBetween(currentPos.latitude,currentPos.longitude,markerPos.latitude,markerPos.longitude,result);
+                if (result[0] > maxDistanceVisibleMarker && started)
+                {
+                    options.visible(false);
+                }
+
+                Marker markerEntity = new Marker();
+                markerEntity.setVraag_id(markerLocations.get(i).getVraag_id());
+                markerEntity.setId(markerLocations.get(i).getId());
+                markerEntity.setInfo(markerLocations.get(i).getInfo());
+                markerEntity.setLatitude(markerLocations.get(i).getLatitude());
+                markerEntity.setLongitude(markerLocations.get(i).getLongitude());
+                markerEntity.setName(markerLocations.get(i).getName());
+
+                com.google.android.gms.maps.model.Marker m = mMap.addMarker(options);
+                m.setTag(markerEntity);
+                pd.dismiss();
+                ZoomCameraToCurrentPosition();
+            }
+        }
+        else
+        {
+            pd.dismiss();
+        }
+    }
+
+    public void onLocationChanged(Location location)
+    {
+        for (int i = 0; i < markerLocations.size(); i++)
+        {
             LatLng currentPos = GetCurrentLocation();
-            /*float[] result = new float[1];
-            Location.distanceBetween(currentPos.latitude,currentPos.longitude,markerPos.latitude,markerPos.longitude,result);
+            float[] result = new float[1];
+            Location.distanceBetween(currentPos.latitude,currentPos.longitude,markerLocations.get(i).getLatitude(),markerLocations.get(i).getLongitude(),result);
             if (result[0] > maxDistanceVisibleMarker && started)
             {
-                options.visible(false);
-            }*/
-
-            Marker markerEntity = new Marker();
-            markerEntity.setVraag_id(markerLocations.get(i).getVraag_id());
-            markerEntity.setId(markerLocations.get(i).getId());
-            markerEntity.setInfo(markerLocations.get(i).getInfo());
-            markerEntity.setLatitude(markerLocations.get(i).getLatitude());
-            markerEntity.setLongitude(markerLocations.get(i).getLongitude());
-            markerEntity.setName(markerLocations.get(i).getName());
-
-           com.google.android.gms.maps.model.Marker m = mMap.addMarker(options);
-            m.setTag(markerEntity);
-            pd.dismiss();
-            ZoomCameraToCurrentPosition();
+               //hide the marker
+            }
         }
     }
 
