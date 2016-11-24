@@ -177,7 +177,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 }
 
-                if (started && answered != 1)
+                if (started )
                 {
                     final Dialog dialog = new Dialog(MapsActivity.this);
                     dialog.setContentView(R.layout.custom_marker_dialog);
@@ -196,6 +196,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     answerRadio4 = (RadioButton) dialog.findViewById(R.id.answerRadio4);
 
                     answerButton = (Button) dialog.findViewById(R.id.answerButton);
+                    if (answered == 1)
+                    {
+                        questionText.setVisibility(View.GONE);
+                        answerRadio1.setVisibility(View.GONE);
+                        answerRadio2.setVisibility(View.GONE);
+                        answerRadio3.setVisibility(View.GONE);
+                        answerRadio4.setVisibility(View.GONE);
+                        answerButton.setVisibility(View.GONE);
+
+                    }
                     answerButton.setOnClickListener(new View.OnClickListener()
                     {
                         @Override
@@ -383,7 +393,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 {
                     options.visible(false);
                 }
-
 
                 markerEntity.setVraag_id(markerLocations.get(i).getVraag_id());
                 markerEntity.setId(markerLocations.get(i).getId());
