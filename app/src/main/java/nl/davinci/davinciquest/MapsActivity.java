@@ -339,6 +339,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 options.position(markerPos);
                 options.title(markerLocations.get(i).getName());
                 options.snippet(markerLocations.get(i).getInfo());
+                Marker markerEntity = new Marker();
                 if (started)
                 {
                     boolean found = false;
@@ -350,18 +351,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             {
                                 options.icon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
                                 found = true;
+                                markerEntity.setLocationUser(locationUserList.get(r));
+                                markerEntity.setAnswered(true);
                                 break;
                             }
                             else
                             {
                                 options.icon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
                                 found = true;
+                                markerEntity.setLocationUser(locationUserList.get(r));
+                                markerEntity.setAnswered(true);
                                 break;
                             }
                         }
                     }
                     if (!found)
                     {
+                        markerEntity.setAnswered(false);
                         options.icon(BitmapDescriptorFactory.fromResource(R.drawable.orangemarkersmall));
                     }
                 }
@@ -378,7 +384,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     options.visible(false);
                 }
 
-                Marker markerEntity = new Marker();
+
                 markerEntity.setVraag_id(markerLocations.get(i).getVraag_id());
                 markerEntity.setId(markerLocations.get(i).getId());
                 markerEntity.setInfo(markerLocations.get(i).getInfo());
@@ -409,7 +415,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             LatLng currentPos = GetCurrentLocation();
             float[] result = new float[1];
             Location.distanceBetween(currentPos.latitude,currentPos.longitude,markerLocations.get(i).getLatitude(),markerLocations.get(i).getLongitude(),result);
-            if (result[0] > maxDistanceVisibleMarker && started)
+            if (result[0] > maxDistanceVisibleMarker && started && !markerLocations.get(i).getAnswered())
             {
                 markerLocations.get(i).getMapMarker().setVisible(false);
             }
@@ -418,6 +424,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 markerLocations.get(i).getMapMarker().setVisible(true);
             }
         }
+
+        ZoomCameraToCurrentPosition();
     }
 
     //Sets  marker at the users current location

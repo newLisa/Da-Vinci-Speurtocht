@@ -13,6 +13,8 @@ public class Marker
     private int vraag_id;
     private String info;
     private com.google.android.gms.maps.model.Marker mapMarker;
+    private LocationUser locationUser;
+    private Boolean answered;
 
     public int getId()
     {
@@ -80,5 +82,25 @@ public class Marker
 
     public void setMapMarker(com.google.android.gms.maps.model.Marker mapMarker) {
         this.mapMarker = mapMarker;
+    }
+
+    public LocationUser getLocationUser()
+    {
+        return locationUser;
+    }
+
+    public void setLocationUser(LocationUser locationUser)
+    {
+        this.locationUser = locationUser;
+    }
+
+    public Boolean getAnswered()
+    {
+        return answered;
+    }
+
+    public void setAnswered(Boolean answered)
+    {
+        this.answered = answered;
     }
 }
