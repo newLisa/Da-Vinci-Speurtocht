@@ -1,15 +1,12 @@
 package nl.davinci.davinciquest;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,10 +27,10 @@ import android.widget.TextView;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
-import com.google.android.gms.cast.Cast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -59,10 +56,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ScheduledExecutorService;
 
 import nl.davinci.davinciquest.Controllers.LocationUserController;
 import nl.davinci.davinciquest.Controllers.QuestController;
@@ -71,7 +64,7 @@ import nl.davinci.davinciquest.Entity.LocationUser;
 import nl.davinci.davinciquest.Entity.Marker;
 import nl.davinci.davinciquest.Entity.Quest;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback ,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener/*, LocationListener*/
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener
 {
     private GoogleMap mMap;
     GoogleApiClient mGoogleApiClient;
@@ -91,10 +84,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Boolean started = false;
     ArrayList<LocationUser> locationUserList = new ArrayList();
     ProgressDialog pd;
-    protected LocationManager locationManager;
+    LocationRequest mLocationRequest;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         //ask for location permission
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
 
@@ -109,6 +103,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
 
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(5000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
         // ATTENTION: This "addApi(AppIndex.API)"was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -120,13 +119,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         AddButtonOnClickListeners();
         userQuestList = questUserController.getQuestByUserId(user_id);
-        for (int i = 0; i < userQuestList.size(); i++)   {
-            if (userQuestList.get(i).getId() == quest.getId())  {
+        for (int i = 0; i < userQuestList.size(); i++)
+        {
+            if (userQuestList.get(i).getId() == quest.getId())
+            {
                 started = true;
                 startButton.hide();
             }
         }
-        if (speurtochtId > 0) {
+        if (speurtochtId > 0)
+        {
             GetSpeurtochtJsonData gs = new GetSpeurtochtJsonData();
             gs.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtlocatie/" + speurtochtId);
         }
@@ -151,9 +153,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setMyLocationEnabled(true);
         }
 
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
+        {
             @Override
-            public boolean onMarkerClick(final com.google.android.gms.maps.model.Marker marker) {
+            public boolean onMarkerClick(final com.google.android.gms.maps.model.Marker marker)
+            {
                 LocationUserController locationUserController = new LocationUserController();
                 locationUserList = locationUserController.getLocationUserArray(user_id, quest.getId());
 
@@ -192,9 +196,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     answerRadio4 = (RadioButton) dialog.findViewById(R.id.answerRadio4);
 
                     answerButton = (Button) dialog.findViewById(R.id.answerButton);
-                    answerButton.setOnClickListener(new View.OnClickListener() {
+                    answerButton.setOnClickListener(new View.OnClickListener()
+                    {
                         @Override
-                        public void onClick(View view) {
+                        public void onClick(View view)
+                        {
                             Marker currentLocation = (Marker) marker.getTag();
                             answerRadioGroup = (RadioGroup) dialog.findViewById(R.id.answerRadioGroup);
                             int selectedRadiobuttonId = answerRadioGroup.getCheckedRadioButtonId();
@@ -206,11 +212,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             locationUser.setQuest_id(quest.getId());
                             LocationUserController locationUserController = new LocationUserController();
 
-                            if (correctAnswer.equals(answer)) {
+                            if (correctAnswer.equals(answer))
+                            {
                                 locationUser.setAnswered_correct("true");
                                 marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
-                            }
-                            else {
+                            } else
+                            {
                                 locationUser.setAnswered_correct("false");
                                 marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
                             }
@@ -221,7 +228,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     });
 
                     Marker m = (Marker) marker.getTag();
-                    if (m != null) {
+                    if (m != null)
+                    {
                         int vraagId = m.getVraag_id();
                         GetQuestion getq = new GetQuestion();
                         getq.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/vraag/" + Integer.toString(vraagId));
@@ -245,7 +253,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         new LatLng(51.79726334535511, 4.677445292472839),
                         new LatLng(51.79665953765794, 4.679537415504456),
                         new LatLng(51.797814064006644, 4.685030579566956),
-                        new LatLng(51.80013629759001,4.685245156288147));
+                        new LatLng(51.80013629759001, 4.685245156288147));
         rectOptions.strokeColor(Color.RED);
 
         // Get back the mutable Polygon
@@ -253,9 +261,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public  void onConnected(Bundle connectionHint)
+    public void onConnected(Bundle connectionHint)
     {
-
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
     }
 
     public void AddButtonOnClickListeners()
@@ -371,54 +391,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 markerEntity.setMapMarker(m);
                 markerLocations.set(i, markerEntity);
-
-
             }
             pd.dismiss();
             ZoomCameraToCurrentPosition();
-            ScheduledExecutorService schedule;
-            schedule().scheduleWithFixedDelay(new Runnable() {
-                @Override
-                public void run() {
-
-                }
-            },1 ,3L, 5);
-
-            /*new Timer().sc(new TimerTask() {
-                @Override
-                public void run() {
-                    LatLng currentPos = GetCurrentLocation();
-                    for (int i = 0; i < markerLocations.size(); i++)
-                    {
-
-                        float[] result = new float[1];
-                        Location.distanceBetween(currentPos.latitude,currentPos.longitude,markerLocations.get(i).getLatitude(),markerLocations.get(i).getLongitude(),result);
-                        if (result[0] > maxDistanceVisibleMarker && started)
-                        {
-                            markerLocations.get(i).getMapMarker().setVisible(false);
-                        }
-                        else
-                        {
-                            markerLocations.get(i).getMapMarker().setVisible(true);
-                        }
-                    }
-                }
-            }, 0, 10000);*/
         }
         else
         {
             pd.dismiss();
         }
-
-
     }
-    /*@Override
+
+    @Override
     public void onLocationChanged(Location location)
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
-        builder.setTitle("IT FUCKING WORKS!!!!!");
-        builder.show();
-
         for (int i = 0; i < markerLocations.size(); i++)
         {
             LatLng currentPos = GetCurrentLocation();
@@ -433,7 +418,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 markerLocations.get(i).getMapMarker().setVisible(true);
             }
         }
-    }*/
+    }
 
     //Sets  marker at the users current location
     public void SetMarkerAtCurrentLocation()
@@ -739,37 +724,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         return response.toString();
     }
-
-    public class checkMarkerDistanceAndHideIfYouAreTooFarAway extends AsyncTask<ArrayList<Marker>, String, Void>
-    {
-        @Override
-        protected Void doInBackground(ArrayList<Marker>... markers) {
-            LocationManager locationManager = (LocationManager)
-                    getSystemService(Context.LOCATION_SERVICE);
-
-            return null;
-        }
-
-        @Override
-        protected void onPreExecute()
-        {
-            super.onPreExecute();
-            pd = ProgressDialog.show(MapsActivity.this, "Loading", "Please wait...");
-
-        }
-
-
-        protected void onPostExecute()
-        {
-
-        }
-
-        @Override
-        protected void onProgressUpdate(String... values) {
-            super.onProgressUpdate(values);
-        }
-    }
-
 }
-
-
