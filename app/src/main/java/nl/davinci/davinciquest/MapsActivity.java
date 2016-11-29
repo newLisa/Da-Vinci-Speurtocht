@@ -72,7 +72,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     FloatingActionButton qrButton, startButton;
     int markerCount = 1;
     float maxDistanceVisibleMarker = 100;
-    ArrayList<Marker> markerLocations;
+    ArrayList<Marker> markerLocations = new ArrayList<>();
     int speurtochtId, user_id;
     Quest quest = new Quest();
     ArrayList<Quest> userQuestList = new ArrayList<>();
@@ -420,22 +420,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location)
     {
-        for (int i = 0; i < markerLocations.size(); i++)
+        if(markerLocations.size() != 0)
         {
-            LatLng currentPos = GetCurrentLocation();
-            float[] result = new float[1];
-            Location.distanceBetween(currentPos.latitude,currentPos.longitude,markerLocations.get(i).getLatitude(),markerLocations.get(i).getLongitude(),result);
-            if (result[0] > maxDistanceVisibleMarker && started && !markerLocations.get(i).getAnswered())
+            for (int i = 0; i < markerLocations.size(); i++)
             {
-                markerLocations.get(i).getMapMarker().setVisible(false);
+                LatLng currentPos = GetCurrentLocation();
+                float[] result = new float[1];
+                Location.distanceBetween(currentPos.latitude, currentPos.longitude, markerLocations.get(i).getLatitude(), markerLocations.get(i).getLongitude(), result);
+                if (result[0] > maxDistanceVisibleMarker && started && !markerLocations.get(i).getAnswered())
+                {
+                    markerLocations.get(i).getMapMarker().setVisible(false);
+                } else
+                {
+                    markerLocations.get(i).getMapMarker().setVisible(true);
+                }
             }
-            else
-            {
-                markerLocations.get(i).getMapMarker().setVisible(true);
-            }
-        }
 
-        ZoomCameraToCurrentPosition();
+            ZoomCameraToCurrentPosition();
+        }
     }
 
     //Sets  marker at the users current location
