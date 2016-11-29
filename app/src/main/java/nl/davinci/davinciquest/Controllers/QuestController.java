@@ -23,6 +23,7 @@ import nl.davinci.davinciquest.Entity.Quest;
 public class QuestController {
     Quest quest = new Quest();
     Boolean done;
+    Boolean found;
     public Quest getQuest(Integer questId)
     {
         done = false;
@@ -38,6 +39,22 @@ public class QuestController {
 
 
         return quest;
+    }
+
+    public Boolean checkQuest(Integer questId)
+    {
+        CheckQuestBackground checkQuestBackground = new CheckQuestBackground();
+
+        try {
+            found = checkQuestBackground.execute(questId).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+
+        return found;
     }
 
     public class GetQuestBackground extends AsyncTask<Integer, String, Quest>
@@ -98,6 +115,62 @@ public class QuestController {
         {
             done = true;
             quest = bgQuest;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+        }
+    }
+
+    public class CheckQuestBackground extends AsyncTask<Integer, String, Boolean>
+    {
+        @Override
+        protected Boolean doInBackground(Integer... questId) {
+            Boolean found = false;
+            try
+            {
+                URL url = new URL("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/speurtocht/" + questId[0].toString());
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+                BufferedReader bufferedReader = new BufferedReader(
+                        new InputStreamReader(urlConnection.getInputStream()));
+                String next;
+
+                if ((next = bufferedReader.readLine()) != null)
+                {
+                    found = true;
+                }
+                else
+                {
+                    found = false;
+                }
+            }catch(MalformedURLException e)
+            {
+                found = false;
+                e.printStackTrace();
+            }
+            catch(IOException e)
+            {
+                found = false;
+                e.printStackTrace();
+            }
+
+
+            return found;
+        }
+
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(Boolean found)
+        {
+            found = found;
         }
 
         @Override

@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
+import nl.davinci.davinciquest.Controllers.QuestController;
 import nl.davinci.davinciquest.Entity.Quest;
 
 public class HomeActivity extends AppCompatActivity {
@@ -106,11 +107,30 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 EditText questIdText = (EditText) findViewById(R.id.questIdText);
-                Intent i = new Intent(getApplicationContext(), MapsActivity.class);
-                i.putExtra("id", Integer.parseInt(questIdText.getText().toString()));
-                i.putExtra("user_id", user_id);
+                QuestController questController = new QuestController();
+                Boolean exists = questController.checkQuest(Integer.parseInt(questIdText.getText().toString()));
+                if (exists) {
+                    Intent i = new Intent(getApplicationContext(), MapsActivity.class);
+                    i.putExtra("id", Integer.parseInt(questIdText.getText().toString()));
+                    i.putExtra("user_id", user_id);
 
-                startActivity(i);
+                    startActivity(i);
+                }
+                else
+                {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
+                    builder.setTitle(nickname);
+                    builder.setMessage("This quest id does not exist");
+                    builder.setNegativeButton("OK", new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+
+                    builder.show();
+                }
             }
         });
     }
