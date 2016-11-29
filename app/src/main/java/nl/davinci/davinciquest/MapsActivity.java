@@ -466,10 +466,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public LatLng GetCurrentLocation()
     {
         LatLng pos = null;
+        boolean done = false;
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED)
         {
             Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            while (currentLocation.getLatitude() == 0 || currentLocation.getLongitude() == 0)
+            {
+                currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            }
             pos = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
         }
         return pos;
@@ -581,14 +586,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         protected void onPostExecute(ArrayList locations)
         {
             markerLocations = locations;
-
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    PlaceMarkers();
-                }
-            }, 500);
+            PlaceMarkers();
         }
 
         @Override
