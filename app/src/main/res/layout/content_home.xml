@@ -22,9 +22,9 @@
         android:text="@string/field_confirm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/button2"
-        android:layout_alignBottom="@+id/editText"
-        android:layout_toRightOf="@+id/editText"
+        android:id="@+id/joinQuestButton"
+        android:layout_alignBottom="@+id/questIdText"
+        android:layout_toRightOf="@+id/questIdText"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
@@ -34,7 +34,7 @@
         android:inputType="number"
         android:hint="@string/field_enter_id"
         android:ems="10"
-        android:id="@+id/editText"
+        android:id="@+id/questIdText"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -55,7 +55,7 @@
         android:text="@string/available_quests"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/editText"
+        android:layout_below="@+id/questIdText"
         android:layout_alignParentStart="true"
         android:id="@+id/textView3"
         android:layout_alignParentEnd="true"/>

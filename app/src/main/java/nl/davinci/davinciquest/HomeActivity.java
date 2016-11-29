@@ -39,7 +39,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
@@ -102,8 +101,18 @@ public class HomeActivity extends AppCompatActivity {
 //        });
 
 
-        EditText et = (EditText) findViewById(R.id.editText);
-        et.clearFocus();
+        Button joinQuestButton = (Button) findViewById(R.id.joinQuestButton);
+        joinQuestButton.setOnClickListener(new View.OnClickListener()   {
+            @Override
+            public void onClick(View view) {
+                EditText questIdText = (EditText) findViewById(R.id.questIdText);
+                Intent i = new Intent(getApplicationContext(), MapsActivity.class);
+                i.putExtra("id", Integer.parseInt(questIdText.getText().toString()));
+                i.putExtra("user_id", user_id);
+
+                startActivity(i);
+            }
+        });
     }
 
     @Override
