@@ -103,8 +103,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
 
-
-
         // ATTENTION: This "addApi(AppIndex.API)"was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -123,11 +121,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 started = true;
                 startButton.hide();
             }
-        }
-        if (speurtochtId > 0)
-        {
-            GetSpeurtochtJsonData gs = new GetSpeurtochtJsonData();
-            gs.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtlocatie/" + speurtochtId);
         }
     }
 
@@ -268,6 +261,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onConnected(Bundle connectionHint)
     {
+        if (speurtochtId > 0)
+        {
+            GetSpeurtochtJsonData gs = new GetSpeurtochtJsonData();
+            gs.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtlocatie/" + speurtochtId);
+        }
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
         {
             // TODO: Consider calling
@@ -317,6 +316,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void ZoomCameraToCurrentPosition()
     {
         LatLng currentPos = GetCurrentLocation();
+        if (currentPos == null)
+        {
+            return;
+        }
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(currentPos)      // Sets the center of the map to location user
                 .zoom(16)                   // Sets the zoom
@@ -422,6 +425,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         {
             for (int i = 0; i < markerLocations.size(); i++)
             {
+                if (GetCurrentLocation() == null)
+                {
+                    return;
+                }
                 LatLng currentPos = GetCurrentLocation();
                 float[] result = new float[1];
                 Location.distanceBetween(currentPos.latitude, currentPos.longitude, markerLocations.get(i).getLatitude(), markerLocations.get(i).getLongitude(), result);
@@ -432,9 +439,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 {
                     markerLocations.get(i).getMapMarker().setVisible(true);
 
-                    if (!markerLocations.get(i).getAnswered())
+                    if (started)
                     {
-                        ShowMarkerQuestion(markerLocations.get(i));
+                        if (!markerLocations.get(i).getAnswered()) {
+                            ShowMarkerQuestion(markerLocations.get(i));
+                        }
                     }
                 }
             }
@@ -445,94 +454,98 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     void ShowMarkerQuestion(final Marker marker)
     {
-        LocationUserController locationUserController = new LocationUserController();
-        locationUserList = locationUserController.getLocationUserArray(user_id, quest.getId());
-
-        Marker markerEntity = new Marker();
-        markerEntity = (Marker) marker.getMapMarker().getTag();
-        int answered = 0;
-
-        for (int i = 0; i < locationUserList.size(); i++)
+        if (!marker.getAnswered())
         {
-            if (locationUserList.get(i).getLocation_id() == markerEntity.getId())
+            for (int g = 0; g < markerLocations.size(); g++)
             {
-                answered = locationUserList.get(i).getAnswered();
-                if (answered == 1)
+                if (markerLocations.get(g).getId() == marker.getId())
                 {
-                    break;
+                    markerLocations.get(g).setAnswered(true);
                 }
+            }
+            LocationUserController locationUserController = new LocationUserController();
+            locationUserList = locationUserController.getLocationUserArray(user_id, quest.getId());
+
+            Marker markerEntity = new Marker();
+            markerEntity = (Marker) marker.getMapMarker().getTag();
+            int answered = 0;
+
+            for (int i = 0; i < locationUserList.size(); i++)
+            {
+                //TODO Unfuckuptheshit
+                if (locationUserList.get(i).getLocation_id() == marker.getId())
+                {
+                    answered = locationUserList.get(i).getAnswered();
+                    if (answered == 1)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            if (started) {
+                final Dialog dialog = new Dialog(MapsActivity.this);
+                dialog.setContentView(R.layout.custom_marker_dialog);
+                dialog.setTitle(marker.getMapMarker().getTitle());
+
+                ImageView img = (ImageView) dialog.findViewById(R.id.custom_dialog_image);
+                img.setImageResource(R.drawable.paardenbloem);
+
+                TextView infoTextView = (TextView) dialog.findViewById(R.id.custom_dialog_info);
+                infoTextView.setText(marker.getMapMarker().getSnippet());
+
+                questionText = (TextView) dialog.findViewById(R.id.QuestionText);
+                answerRadio1 = (RadioButton) dialog.findViewById(R.id.answerRadio1);
+                answerRadio2 = (RadioButton) dialog.findViewById(R.id.answerRadio2);
+                answerRadio3 = (RadioButton) dialog.findViewById(R.id.answerRadio3);
+                answerRadio4 = (RadioButton) dialog.findViewById(R.id.answerRadio4);
+
+                answerButton = (Button) dialog.findViewById(R.id.answerButton);
+                if (answered == 1) {
+                    questionText.setVisibility(View.GONE);
+                    answerRadio1.setVisibility(View.GONE);
+                    answerRadio2.setVisibility(View.GONE);
+                    answerRadio3.setVisibility(View.GONE);
+                    answerRadio4.setVisibility(View.GONE);
+                    answerButton.setVisibility(View.GONE);
+
+                }
+                answerButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        answerRadioGroup = (RadioGroup) dialog.findViewById(R.id.answerRadioGroup);
+                        int selectedRadiobuttonId = answerRadioGroup.getCheckedRadioButtonId();
+                        RadioButton selectedRadioButton = (RadioButton) answerRadioGroup.findViewById(selectedRadiobuttonId);
+                        String answer = selectedRadioButton.getText().toString();
+                        LocationUser locationUser = new LocationUser();
+                        locationUser.setUser_id(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt("user_id", 0));
+                        locationUser.setLocation_id(marker.getId());
+                        locationUser.setQuest_id(quest.getId());
+                        LocationUserController locationUserController = new LocationUserController();
+
+                        if (correctAnswer.equals(answer)) {
+                            locationUser.setAnswered_correct("true");
+                            marker.getMapMarker().setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
+                        } else {
+                            locationUser.setAnswered_correct("false");
+                            marker.getMapMarker().setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
+                        }
+                        locationUser.setAnswered("true");
+                        locationUserController.postLocationUser(locationUser);
+                        dialog.cancel();
+                    }
+                });
+
+                if (marker != null) {
+                    int vraagId = marker.getVraag_id();
+                    GetQuestion getq = new GetQuestion();
+                    getq.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/vraag/" + Integer.toString(vraagId));
+                }
+
+                dialog.show();
             }
         }
-
-        if (started )
-        {
-            final Dialog dialog = new Dialog(MapsActivity.this);
-            dialog.setContentView(R.layout.custom_marker_dialog);
-            dialog.setTitle(marker.getMapMarker().getTitle());
-
-            ImageView img = (ImageView) dialog.findViewById(R.id.custom_dialog_image);
-            img.setImageResource(R.drawable.paardenbloem);
-
-            TextView infoTextView = (TextView) dialog.findViewById(R.id.custom_dialog_info);
-            infoTextView.setText(marker.getMapMarker().getSnippet());
-
-            questionText = (TextView) dialog.findViewById(R.id.QuestionText);
-            answerRadio1 = (RadioButton) dialog.findViewById(R.id.answerRadio1);
-            answerRadio2 = (RadioButton) dialog.findViewById(R.id.answerRadio2);
-            answerRadio3 = (RadioButton) dialog.findViewById(R.id.answerRadio3);
-            answerRadio4 = (RadioButton) dialog.findViewById(R.id.answerRadio4);
-
-            answerButton = (Button) dialog.findViewById(R.id.answerButton);
-            if (answered == 1)
-            {
-                questionText.setVisibility(View.GONE);
-                answerRadio1.setVisibility(View.GONE);
-                answerRadio2.setVisibility(View.GONE);
-                answerRadio3.setVisibility(View.GONE);
-                answerRadio4.setVisibility(View.GONE);
-                answerButton.setVisibility(View.GONE);
-
-            }
-            answerButton.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View view)
-                {
-
-                    answerRadioGroup = (RadioGroup) dialog.findViewById(R.id.answerRadioGroup);
-                    int selectedRadiobuttonId = answerRadioGroup.getCheckedRadioButtonId();
-                    RadioButton selectedRadioButton = (RadioButton) answerRadioGroup.findViewById(selectedRadiobuttonId);
-                    String answer = selectedRadioButton.getText().toString();
-                    LocationUser locationUser = new LocationUser();
-                    locationUser.setUser_id(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt("user_id", 0));
-                    locationUser.setLocation_id(marker.getId());
-                    locationUser.setQuest_id(quest.getId());
-                    LocationUserController locationUserController = new LocationUserController();
-
-                    if (correctAnswer.equals(answer))
-                    {
-                        locationUser.setAnswered_correct("true");
-                        marker.getMapMarker().setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
-                    } else
-                    {
-                        locationUser.setAnswered_correct("false");
-                        marker.getMapMarker().setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
-                    }
-                    locationUser.setAnswered("true");
-                    locationUserController.postLocationUser(locationUser);
-                    dialog.cancel();
-                }
-            });
-
-            if (marker != null)
-            {
-                int vraagId = marker.getVraag_id();
-                GetQuestion getq = new GetQuestion();
-                getq.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/vraag/" + Integer.toString(vraagId));
-            }
-
-            dialog.show();
-    }
     }
 
     //Sets  marker at the users current location
@@ -561,14 +574,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public LatLng GetCurrentLocation()
     {
         LatLng pos = null;
-        boolean done = false;
+        boolean connected = false;
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED)
         {
             Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            while (currentLocation == null)
+            //todo add a default location
+            if (currentLocation == null)
             {
-                currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                //return null;
             }
             pos = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
         }
@@ -681,6 +695,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         protected void onPostExecute(ArrayList locations)
         {
             markerLocations = locations;
+
+
             PlaceMarkers();
         }
 
