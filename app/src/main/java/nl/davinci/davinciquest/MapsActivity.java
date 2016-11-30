@@ -475,7 +475,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             for (int i = 0; i < locationUserList.size(); i++)
             {
                 //TODO Unfuckuptheshit
-                if (locationUserList.get(i).getLocation_id() == markerEntity.getId())
+                if (locationUserList.get(i).getLocation_id() == marker.getId())
                 {
                     answered = locationUserList.get(i).getAnswered();
                     if (answered == 1)
@@ -576,10 +576,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public LatLng GetCurrentLocation()
     {
         LatLng pos = null;
-        boolean done = false;
+        boolean connected = false;
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED)
         {
+            connected = mGoogleApiClient.isConnected();
+            while (connected == false)
+            {
+                mGoogleApiClient.connect();
+                connected = mGoogleApiClient.isConnected();
+            }
             Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
             if (currentLocation == null)
             {
