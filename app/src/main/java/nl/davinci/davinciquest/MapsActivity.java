@@ -103,8 +103,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
 
-
-
         // ATTENTION: This "addApi(AppIndex.API)"was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -123,11 +121,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 started = true;
                 startButton.hide();
             }
-        }
-        if (speurtochtId > 0)
-        {
-            GetSpeurtochtJsonData gs = new GetSpeurtochtJsonData();
-            gs.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtlocatie/" + speurtochtId);
         }
     }
 
@@ -268,6 +261,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onConnected(Bundle connectionHint)
     {
+        if (speurtochtId > 0)
+        {
+            GetSpeurtochtJsonData gs = new GetSpeurtochtJsonData();
+            gs.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtlocatie/" + speurtochtId);
+        }
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
         {
             // TODO: Consider calling
@@ -316,7 +315,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void ZoomCameraToCurrentPosition()
     {
-
         LatLng currentPos = GetCurrentLocation();
         if (currentPos == null)
         {
@@ -580,16 +578,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED)
         {
-            connected = mGoogleApiClient.isConnected();
-            while (connected == false)
-            {
-                mGoogleApiClient.connect();
-                connected = mGoogleApiClient.isConnected();
-            }
             Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            //todo add a default location
             if (currentLocation == null)
             {
-                return null;
+                //return null;
             }
             pos = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
         }
@@ -702,6 +695,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         protected void onPostExecute(ArrayList locations)
         {
             markerLocations = locations;
+
+
             PlaceMarkers();
         }
 
