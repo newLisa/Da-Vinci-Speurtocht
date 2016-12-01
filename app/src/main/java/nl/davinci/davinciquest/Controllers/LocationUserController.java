@@ -20,6 +20,7 @@ import java.util.concurrent.ExecutionException;
 
 import nl.davinci.davinciquest.Entity.LocationUser;
 import nl.davinci.davinciquest.Helper.StreamReader;
+import nl.davinci.davinciquest.MapsActivity;
 
 /**
  * Created by nicog on 11/15/2016.
@@ -111,6 +112,7 @@ public class LocationUserController
         @Override
         protected void onPostExecute(ArrayList<LocationUser> locationUserList)
         {
+
         }
 
         @Override
@@ -122,7 +124,13 @@ public class LocationUserController
     public Boolean postLocationUser(LocationUser locationUser)
     {
         LocationUserController.PostLocationUserBackground postLocationUserBackground = new LocationUserController.PostLocationUserBackground();
-        postLocationUserBackground.execute(locationUser);
+        try {
+            postLocationUserBackground.execute(locationUser).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
         return true;
     }
 

@@ -84,6 +84,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<LocationUser> locationUserList = new ArrayList();
     ProgressDialog pd;
     LocationRequest mLocationRequest;
+    static int id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -200,25 +201,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         @Override
                         public void onClick(View view)
                         {
-                            Marker currentLocation = (Marker) marker.getTag();
+                            Marker currentMarker = (Marker) marker.getTag();
                             answerRadioGroup = (RadioGroup) dialog.findViewById(R.id.answerRadioGroup);
                             int selectedRadiobuttonId = answerRadioGroup.getCheckedRadioButtonId();
                             RadioButton selectedRadioButton = (RadioButton) answerRadioGroup.findViewById(selectedRadiobuttonId);
                             String answer = selectedRadioButton.getText().toString();
                             LocationUser locationUser = new LocationUser();
                             locationUser.setUser_id(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt("user_id", 0));
-                            locationUser.setLocation_id(currentLocation.getId());
+                            locationUser.setLocation_id(currentMarker.getId());
                             locationUser.setQuest_id(quest.getId());
                             LocationUserController locationUserController = new LocationUserController();
 
                             if (correctAnswer.equals(answer))
                             {
                                 locationUser.setAnswered_correct("true");
-                                marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
-                            } else
-                            {
+                                if (currentMarker.isQr())
+                                {
+                                    marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenqrsmall));
+                                }
+                                else
+                                {
+                                    marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
+                                }
+                            }
+                            else {
                                 locationUser.setAnswered_correct("false");
-                                marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
+                                if (currentMarker.isQr())
+                                {
+                                    marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redqrsmall));
+                                }
+                                else
+                                {
+                                    marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
+                                }
                             }
                             locationUser.setAnswered("true");
                             locationUserController.postLocationUser(locationUser);
@@ -293,7 +308,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View view)
             {
                 Intent i = new Intent(getApplicationContext(),QRScanActivity.class);
-                startActivity(i);
+                startActivityForResult(i, 1);
             }
         });
 
@@ -304,7 +319,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             {
                 PostKoppelTochtUser pktu = new PostKoppelTochtUser();
                 pktu.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtuser/");
-                mMap.clear();
+                //mMap.clear();
                 started = true;
                 startButton.hide();
                 PlaceMarkers();
@@ -362,7 +377,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             {
                                 if (markerLocations.get(i).isQr())
                                 {
-                                    options.icon(BitmapDescriptorFactory.fromResource(R.drawable.cast_album_art_placeholder));
+                                    options.icon(BitmapDescriptorFactory.fromResource(R.drawable.greenqrsmall));
                                 }
                                 else
                                 {
@@ -375,9 +390,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             }
                             else
                             {
-                                if (markerLocations.get(i).isQr())
-                                {
-                                    options.icon(BitmapDescriptorFactory.fromResource(R.drawable.cast_album_art_placeholder));
+                                if (markerLocations.get(i).isQr()) {
+                                    options.icon(BitmapDescriptorFactory.fromResource(R.drawable.redqrsmall));
                                 }
                                 else
                                 {
@@ -395,7 +409,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         markerEntity.setAnswered(false);
                         if (markerLocations.get(i).isQr())
                         {
-                            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.cast_album_art_placeholder));
+                            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.orangeqrsmall));
                         }
                         else
                         {
@@ -462,8 +476,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     if (started)
                     {
+
                         if (!markerLocations.get(i).getAnswered() && !markerLocations.get(i).isQr()) {
-                            ShowMarkerQuestion(markerLocations.get(i));
+                            ShowMarkerQuestion(getSingleMarker(markerLocations.get(i).getId()));
                         }
                     }
                 }
@@ -482,13 +497,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (markerLocations.get(g).getId() == marker.getId())
                 {
                     markerLocations.get(g).setAnswered(true);
+                    break;
                 }
             }
             LocationUserController locationUserController = new LocationUserController();
             locationUserList = locationUserController.getLocationUserArray(user_id, quest.getId());
 
-            Marker markerEntity = new Marker();
-            markerEntity = (Marker) marker.getMapMarker().getTag();
             int answered = 0;
 
             for (int i = 0; i < locationUserList.size(); i++)
@@ -532,6 +546,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     answerButton.setVisibility(View.GONE);
 
                 }
+
                 answerButton.setOnClickListener(new View.OnClickListener()
                 {
                     @Override
@@ -547,19 +562,40 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         locationUser.setLocation_id(marker.getId());
                         locationUser.setQuest_id(quest.getId());
                         LocationUserController locationUserController = new LocationUserController();
+                        com.google.android.gms.maps.model.Marker mapMarker = marker.getMapMarker();
 
                         if (correctAnswer.equals(answer))
                         {
                             locationUser.setAnswered_correct("true");
-                            marker.getMapMarker().setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
-                        } else
+                            if (marker.isQr())
+                            {
+                                mapMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenqrsmall));
+                                Log.w("MapMarkerId: ", mapMarker.getId().toString());
+                            }
+                            else
+                            {
+                                mapMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
+                                Log.w("MapMarkerId: ", mapMarker.getId().toString());
+                            }
+                        }
+                        else
                         {
                             locationUser.setAnswered_correct("false");
-                            marker.getMapMarker().setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
+                            if (marker.isQr())
+                            {
+                                mapMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redqrsmall));
+                            }
+                            else
+                            {
+                                mapMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
+                            }
+
                         }
                         locationUser.setAnswered("true");
                         locationUserController.postLocationUser(locationUser);
                         dialog.cancel();
+                        //TODO Dit moet nog vervangen worden voor iets beters dit reload heel de activity om de kleur te veranderen maar dit moet direct zoals bij een niet QR vraag
+                        MapsActivity.this.recreate();
                     }
                 });
 
@@ -572,6 +608,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 dialog.show();
             }
         }
+
     }
 
     //Sets  marker at the users current location
@@ -880,4 +917,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         return response.toString();
     }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) {
+            if(resultCode == RESULT_OK){
+                int markerId = Integer.parseInt(data.getStringExtra("markerId"));
+
+
+                if (getSingleMarker(markerId) == null)
+                {
+                    //TODO make error handler
+                }
+                else
+                {
+                    ShowMarkerQuestion(getSingleMarker(markerId));
+                }
+            }
+        }
+    }
+
+    public Marker getSingleMarker(int markerId)
+    {
+        for (int i = 0; i < markerLocations.size(); i++)
+        {
+            if (markerLocations.get(i).getId() == markerId)
+            {
+                return markerLocations.get(i);
+            }
+        }
+        return null;
+    }
+
+
 }

@@ -31,8 +31,7 @@ public class QRScanActivity extends AppCompatActivity implements ZXingScannerVie
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 1: {
 
@@ -82,18 +81,20 @@ public class QRScanActivity extends AppCompatActivity implements ZXingScannerVie
 
         if(URLUtil.isHttpsUrl(result.getText()) || URLUtil.isHttpUrl(result.getText()))
         {
-            Intent i = new Intent(getApplicationContext(),WebViewActivity.class);
+            /*Intent i = new Intent(getApplicationContext(),WebViewActivity.class);
             i.putExtra("url", result.getText());
-            startActivity(i);
+            startActivity(i);*/
         }
         else
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.scan_result);
-            builder.setMessage(result.getText());
-            AlertDialog alert1 = builder.create();
-            alert1.show();
-            mScannerView.resumeCameraPreview(this);
+            Intent intent = new Intent();
+            intent.putExtra("markerId", result.getText());
+            setResult(RESULT_OK, intent);
+            onBackPressed();
+
         }
+
+
+
     }
 }
