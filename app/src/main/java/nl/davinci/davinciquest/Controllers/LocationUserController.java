@@ -25,28 +25,31 @@ import nl.davinci.davinciquest.Helper.StreamReader;
  * Created by nicog on 11/15/2016.
  */
 
-public class LocationUserController {
-
+public class LocationUserController
+{
     ArrayList<LocationUser> locationUserList = new ArrayList();
     StreamReader streamReader = new StreamReader();
 
     public ArrayList<LocationUser> getLocationUserArray(Integer userId, Integer questId)
     {
         LocationUserController.LocationUserArrayBackground locationUserArrayBackground = new LocationUserController.LocationUserArrayBackground();
-        try {
+        try
+        {
             locationUserList = locationUserArrayBackground.execute(userId, questId).get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        }
+        catch (InterruptedException e)
+        {
             e.printStackTrace();
         }
-
+        catch (ExecutionException e)
+        {
+            e.printStackTrace();
+        }
         return locationUserList;
     }
 
     public class LocationUserArrayBackground extends AsyncTask<Integer, String, ArrayList<LocationUser>>
     {
-
         @Override
         protected ArrayList<LocationUser> doInBackground(Integer... ids) {
 
@@ -82,7 +85,8 @@ public class LocationUserController {
                         locationUserList.add(bgLocationUser);
                     }
                 }
-            }catch(MalformedURLException e)
+            }
+            catch(MalformedURLException e)
             {
                 e.printStackTrace();
             }
@@ -123,15 +127,18 @@ public class LocationUserController {
     }
 
     //this class sends the user data to the API in a JSON object as a POST request
-    public class PostLocationUserBackground extends AsyncTask<LocationUser , Void ,String> {
+    public class PostLocationUserBackground extends AsyncTask<LocationUser , Void ,String>
+    {
         String server_response;
 
         @Override
-        protected String doInBackground(LocationUser... locationUser) {
+        protected String doInBackground(LocationUser... locationUser)
+        {
             URL url;
             HttpURLConnection urlConnection = null;
 
-            try {
+            try
+            {
                 url = new URL("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/locationuser/");
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setDoOutput(true);
@@ -141,7 +148,8 @@ public class LocationUserController {
 
                 DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream ());
 
-                try {
+                try
+                {
                     JSONObject obj = new JSONObject();
                     obj.put("locatie_id" , locationUser[0].getLocation_id());
                     obj.put("user_id" , locationUser[0].getUser_id());
@@ -161,20 +169,26 @@ public class LocationUserController {
 
                 int responseCode = urlConnection.getResponseCode();
 
-                if(responseCode == HttpURLConnection.HTTP_OK){
+                if(responseCode == HttpURLConnection.HTTP_OK)
+                {
                     server_response = streamReader.readStream(urlConnection.getInputStream());
                 }
 
-            } catch (MalformedURLException e) {
+            }
+            catch (MalformedURLException e)
+            {
                 e.printStackTrace();
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 e.printStackTrace();
             }
             return null;
         }
 
         @Override
-        protected void onPostExecute(String s) {
+        protected void onPostExecute(String s)
+        {
             super.onPostExecute(s);
             Log.e("Response", "" + server_response);
         }

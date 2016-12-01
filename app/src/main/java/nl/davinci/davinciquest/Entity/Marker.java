@@ -16,6 +16,8 @@ public class Marker
     private LocationUser locationUser;
     private Boolean answered;
 
+    private Boolean isQr;
+
     public int getId()
     {
         return id;
@@ -102,5 +104,15 @@ public class Marker
     public void setAnswered(Boolean answered)
     {
         this.answered = answered;
+    }
+
+    public Boolean isQr()
+    {
+        return isQr;
+    }
+
+    public void setQr(Boolean qr)
+    {
+        isQr = qr;
     }
 }

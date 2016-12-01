@@ -10,7 +10,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -472,7 +471,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             for (int i = 0; i < locationUserList.size(); i++)
             {
-                //TODO Unfuckuptheshit
                 if (locationUserList.get(i).getLocation_id() == marker.getId())
                 {
                     answered = locationUserList.get(i).getAnswered();
@@ -483,7 +481,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
 
-            if (started) {
+            if (started)
+            {
                 final Dialog dialog = new Dialog(MapsActivity.this);
                 dialog.setContentView(R.layout.custom_marker_dialog);
                 dialog.setTitle(marker.getMapMarker().getTitle());
@@ -501,7 +500,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 answerRadio4 = (RadioButton) dialog.findViewById(R.id.answerRadio4);
 
                 answerButton = (Button) dialog.findViewById(R.id.answerButton);
-                if (answered == 1) {
+                if (answered == 1)
+                {
                     questionText.setVisibility(View.GONE);
                     answerRadio1.setVisibility(View.GONE);
                     answerRadio2.setVisibility(View.GONE);
@@ -510,9 +510,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     answerButton.setVisibility(View.GONE);
 
                 }
-                answerButton.setOnClickListener(new View.OnClickListener() {
+                answerButton.setOnClickListener(new View.OnClickListener()
+                {
                     @Override
-                    public void onClick(View view) {
+                    public void onClick(View view)
+                    {
 
                         answerRadioGroup = (RadioGroup) dialog.findViewById(R.id.answerRadioGroup);
                         int selectedRadiobuttonId = answerRadioGroup.getCheckedRadioButtonId();
@@ -524,10 +526,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         locationUser.setQuest_id(quest.getId());
                         LocationUserController locationUserController = new LocationUserController();
 
-                        if (correctAnswer.equals(answer)) {
+                        if (correctAnswer.equals(answer))
+                        {
                             locationUser.setAnswered_correct("true");
                             marker.getMapMarker().setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
-                        } else {
+                        } else
+                        {
                             locationUser.setAnswered_correct("false");
                             marker.getMapMarker().setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
                         }
@@ -537,12 +541,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 });
 
-                if (marker != null) {
+                if (marker != null)
+                {
                     int vraagId = marker.getVraag_id();
                     GetQuestion getq = new GetQuestion();
                     getq.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/vraag/" + Integer.toString(vraagId));
                 }
-
                 dialog.show();
             }
         }
@@ -579,10 +583,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 == PackageManager.PERMISSION_GRANTED)
         {
             Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            //todo add a default location
             if (currentLocation == null)
             {
-                //return null;
+                return new LatLng(-34.831615,20.014080);
             }
             pos = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
         }
@@ -663,11 +666,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         marker.setName(jo.getString("name"));
                         marker.setInfo(jo.getString("info"));
                         marker.setVraag_id(Integer.parseInt(jo.getString("question_id")));
+                        marker.setQr( jo.getBoolean("isQr"));
 
                         locations.add(marker);
                     }
                 }
-            }catch(MalformedURLException e)
+            }
+            catch(MalformedURLException e)
             {
                 e.printStackTrace();
             }
