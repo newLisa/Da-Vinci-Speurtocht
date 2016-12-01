@@ -360,7 +360,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         {
                             if (locationUserList.get(r).getAnswered_correct() == 1)
                             {
-                                options.icon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
+                                if (markerLocations.get(i).isQr())
+                                {
+                                    options.icon(BitmapDescriptorFactory.fromResource(R.drawable.cast_album_art_placeholder));
+                                }
+                                else
+                                {
+                                    options.icon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
+                                }
                                 found = true;
                                 markerEntity.setLocationUser(locationUserList.get(r));
                                 markerEntity.setAnswered(true);
@@ -368,7 +375,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             }
                             else
                             {
-                                options.icon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
+                                if (markerLocations.get(i).isQr())
+                                {
+                                    options.icon(BitmapDescriptorFactory.fromResource(R.drawable.cast_album_art_placeholder));
+                                }
+                                else
+                                {
+                                    options.icon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
+                                }
                                 found = true;
                                 markerEntity.setLocationUser(locationUserList.get(r));
                                 markerEntity.setAnswered(true);
@@ -379,7 +393,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     if (!found)
                     {
                         markerEntity.setAnswered(false);
-                        options.icon(BitmapDescriptorFactory.fromResource(R.drawable.orangemarkersmall));
+                        if (markerLocations.get(i).isQr())
+                        {
+                            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.cast_album_art_placeholder));
+                        }
+                        else
+                        {
+                            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.orangemarkersmall));
+                        }
                     }
                 }
                 else
@@ -401,6 +422,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 markerEntity.setLatitude(markerLocations.get(i).getLatitude());
                 markerEntity.setLongitude(markerLocations.get(i).getLongitude());
                 markerEntity.setName(markerLocations.get(i).getName());
+                markerEntity.setQr(markerLocations.get(i).isQr());
 
                 com.google.android.gms.maps.model.Marker m = mMap.addMarker(options);
                 m.setTag(markerEntity);
@@ -440,7 +462,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     if (started)
                     {
-                        if (!markerLocations.get(i).getAnswered()) {
+                        if (!markerLocations.get(i).getAnswered() && !markerLocations.get(i).isQr()) {
                             ShowMarkerQuestion(markerLocations.get(i));
                         }
                     }
@@ -553,7 +575,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     //Sets  marker at the users current location
-    public void SetMarkerAtCurrentLocation()
+   /* public void SetMarkerAtCurrentLocation()
     {
         //check permissions
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -573,7 +595,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.addMarker(options);
             markerCount++;
         }
-    }
+    }*/
 
     public LatLng GetCurrentLocation()
     {
@@ -666,7 +688,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         marker.setName(jo.getString("name"));
                         marker.setInfo(jo.getString("info"));
                         marker.setVraag_id(Integer.parseInt(jo.getString("question_id")));
-                        marker.setQr( jo.getBoolean("isQr"));
+                        marker.setQr(Boolean.parseBoolean(jo.getString("is_qr")));
 
                         locations.add(marker);
                     }
