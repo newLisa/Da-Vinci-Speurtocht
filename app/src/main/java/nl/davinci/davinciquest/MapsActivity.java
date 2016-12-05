@@ -148,6 +148,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public boolean onMarkerClick(final com.google.android.gms.maps.model.Marker marker)
             {
+
                 LocationUserController locationUserController = new LocationUserController();
                 locationUserList = locationUserController.getLocationUserArray(user_id, quest.getId());
 
@@ -155,8 +156,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 markerEntity = (Marker) marker.getTag();
                 int answered = 0;
 
-                if(markerEntity.isQr())
+                if(markerEntity.isQr() && !markerEntity.getAnswered())
                 {
+                    markerEntity.getMapMarker().setTitle("Vind en scan de QR code om de vraag te openen");
+                    markerEntity.getMapMarker().setSnippet("");
+                    return false;
+                }
+                else if (!isInRange(markerEntity) && !markerEntity.getAnswered())
+                {
+                    markerEntity.getMapMarker().setTitle("Loop naar de marker toe om hem te openen");
+                    markerEntity.getMapMarker().setSnippet("");
                     return false;
                 }
 
@@ -424,24 +433,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
                 else
                 {
-                    options.icon(BitmapDescriptorFactory.fromResource(R.drawable.greymarkersmall));
+                    if(markerLocations.get(i).isVisible())
+                    {
+                        options.icon(BitmapDescriptorFactory.fromResource(R.drawable.greymarkersmall));
+                    }
+                    else
+                    {
+                        options.visible(false);
+                    }
                 }
 
                 LatLng currentPos = GetCurrentLocation();
                 float[] result = new float[1];
                 Location.distanceBetween(currentPos.latitude,currentPos.longitude,markerPos.latitude,markerPos.longitude,result);
-                if (result[0] > maxDistanceVisibleMarker && started)
+                if (result[0] > maxDistanceVisibleMarker && started && !markerLocations.get(i).isVisible())
                 {
                     options.visible(false);
                 }
 
-                markerEntity.setVraag_id(markerLocations.get(i).getVraag_id());
-                markerEntity.setId(markerLocations.get(i).getId());
-                markerEntity.setInfo(markerLocations.get(i).getInfo());
-                markerEntity.setLatitude(markerLocations.get(i).getLatitude());
-                markerEntity.setLongitude(markerLocations.get(i).getLongitude());
-                markerEntity.setName(markerLocations.get(i).getName());
-                markerEntity.setQr(markerLocations.get(i).isQr());
+                markerEntity = markerLocations.get(i);
 
                 com.google.android.gms.maps.model.Marker m = mMap.addMarker(options);
                 m.setTag(markerEntity);
@@ -472,17 +482,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 LatLng currentPos = GetCurrentLocation();
                 float[] result = new float[1];
                 Location.distanceBetween(currentPos.latitude, currentPos.longitude, markerLocations.get(i).getLatitude(), markerLocations.get(i).getLongitude(), result);
-                if (result[0] > maxDistanceVisibleMarker && started && !markerLocations.get(i).getAnswered())
+                if (result[0] > maxDistanceVisibleMarker && !markerLocations.get(i).getAnswered() && !markerLocations.get(i).isVisible())
                 {
                     markerLocations.get(i).getMapMarker().setVisible(false);
-                } else
+                }
+                else
                 {
-                    markerLocations.get(i).getMapMarker().setVisible(true);
-
                     if (started)
                     {
-
-                        if (!markerLocations.get(i).getAnswered() && !markerLocations.get(i).isQr()) {
+                        markerLocations.get(i).getMapMarker().setVisible(true);
+                        if (!markerLocations.get(i).getAnswered() && !markerLocations.get(i).isQr() && result[0] < maxDistanceVisibleMarker)
+                        {
                             ShowMarkerQuestion(getSingleMarker(markerLocations.get(i).getId()));
                         }
                     }
@@ -731,6 +741,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         marker.setInfo(jo.getString("info"));
                         marker.setVraag_id(Integer.parseInt(jo.getString("question_id")));
                         marker.setQr(Boolean.parseBoolean(jo.getString("is_qr")));
+                        marker.setVisible(Boolean.parseBoolean(jo.getString("is_visible")));
+
+
+                        //TODO Dit fixed het niet
+                        //Answered word op false gezet zodat de app niet klapt bij on location changed
+/*                        if (!started)
+                        {*/
+                            marker.setAnswered(false);
+/*                        }*/
 
                         locations.add(marker);
                     }
@@ -954,5 +973,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return null;
     }
 
+
+    public Boolean isInRange(Marker endPoint)
+    {
+        LatLng currentPos = GetCurrentLocation();
+        float[] result = new float[1];
+        Location.distanceBetween(currentPos.latitude,currentPos.longitude,endPoint.getLatitude(),endPoint.getLongitude(),result);
+        if (result[0] <= /*endPoint.getVisibleDistance*/ maxDistanceVisibleMarker)
+        {
+            return true;
+        }
+
+        return false;
+    }
 
 }

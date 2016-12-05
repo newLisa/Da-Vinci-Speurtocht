@@ -15,8 +15,8 @@ public class Marker
     private com.google.android.gms.maps.model.Marker mapMarker;
     private LocationUser locationUser;
     private Boolean answered;
-
     private Boolean isQr;
+    private Boolean isVisible;
 
     public int getId()
     {
@@ -114,5 +114,13 @@ public class Marker
     public void setQr(Boolean qr)
     {
         isQr = qr;
+    }
+
+    public Boolean isVisible() {
+        return isVisible;
+    }
+
+    public void setVisible(Boolean visible) {
+        isVisible = visible;
     }
 }
