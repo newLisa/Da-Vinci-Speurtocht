@@ -3,6 +3,7 @@ package nl.davinci.davinciquest;
 import android.Manifest;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -22,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -136,6 +138,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap)
     {
         mMap = googleMap;
+
+        mMap.getUiSettings().setMapToolbarEnabled(false);
+        mMap.getUiSettings().setMyLocationButtonEnabled(false);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED)
@@ -310,6 +315,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mLocationRequest.setInterval(5000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setSmallestDisplacement(5);
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient, mLocationRequest, this);
     }
@@ -578,12 +584,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         locationUser.setQuest_id(quest.getId());
                         LocationUserController locationUserController = new LocationUserController();
                         com.google.android.gms.maps.model.Marker mapMarker = marker.getMapMarker();
-
+                        Context context = getApplicationContext();
+                        CharSequence text;
                         if (correctAnswer.equals(answer))
                         {
+                            text = "Goed beantwoord! +10 punten";
                             locationUser.setAnswered_correct("true");
                             if (marker.isQr())
                             {
+
+
                                 mapMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenqrsmall));
                                 Log.w("MapMarkerId: ", mapMarker.getId().toString());
                             }
@@ -604,8 +614,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             {
                                 mapMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
                             }
+                            text = "Fout beantwoord!";
+
 
                         }
+                        int duration = Toast.LENGTH_LONG;
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
+
                         locationUser.setAnswered("true");
                         locationUserController.postLocationUser(locationUser);
                         dialog.cancel();
