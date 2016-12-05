@@ -155,6 +155,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 markerEntity = (Marker) marker.getTag();
                 int answered = 0;
 
+                if(markerEntity.isQr())
+                {
+                    return false;
+                }
+
                 for (int i = 0; i < locationUserList.size(); i++)
                 {
                     if (locationUserList.get(i).getLocation_id() == markerEntity.getId())
