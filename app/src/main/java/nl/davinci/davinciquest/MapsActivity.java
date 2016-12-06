@@ -379,6 +379,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         DrawPolygon();
         LocationUserController locationUserController = new LocationUserController();
         locationUserList = locationUserController.getLocationUserArray(user_id, quest.getId());
+
         if (markerLocations.size() > 0)
         {
             for (int i = 0; i < markerLocations.size(); i++)
@@ -388,7 +389,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 options.position(markerPos);
                 options.title(markerLocations.get(i).getName());
                 options.snippet(markerLocations.get(i).getInfo());
-                Marker markerEntity = new Marker();
+                Marker markerEntity = markerLocations.get(i);
                 if (started)
                 {
                     boolean found = false;
@@ -464,8 +465,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         options.visible(false);
                     }
                 }
-                
-                markerEntity = markerLocations.get(i);
+
 
                 com.google.android.gms.maps.model.Marker m = mMap.addMarker(options);
                 m.setTag(markerEntity);
