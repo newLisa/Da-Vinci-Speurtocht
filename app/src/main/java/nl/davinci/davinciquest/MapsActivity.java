@@ -71,8 +71,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     GoogleApiClient mGoogleApiClient;
     Button answerButton;
     FloatingActionButton qrButton, startButton;
-    int markerCount = 1;
-    float maxDistanceVisibleMarker = 100;
+    int markersCompleted = 0;
+    float maxDistanceVisibleMarker = 50;
     ArrayList<Marker> markerLocations = new ArrayList<>();
     int speurtochtId, user_id;
     Quest quest = new Quest();
@@ -298,6 +298,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         {
             GetSpeurtochtJsonData gs = new GetSpeurtochtJsonData();
             gs.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtlocatie/" + speurtochtId);
+
+            GetNumberOfMarkersCompleted mc = new GetNumberOfMarkersCompleted();
+            mc.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/locationuser/" + user_id + "/" + speurtochtId);
         }
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
@@ -436,6 +439,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             options.icon(BitmapDescriptorFactory.fromResource(R.drawable.orangemarkersmall));
                         }
                     }
+
+                    LatLng currentPos = GetCurrentLocation();
+
+                    float[] result = new float[1];
+                    Location.distanceBetween(currentPos.latitude,currentPos.longitude,markerPos.latitude,markerPos.longitude,result);
+                    if (result[0] > maxDistanceVisibleMarker && !markerLocations.get(i).isVisible() && !markerEntity.getAnswered())
+                    {
+                        options.visible(false);
+                    }
+                    else
+                    {
+                        options.visible(true);
+                    }
                 }
                 else
                 {
@@ -448,15 +464,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         options.visible(false);
                     }
                 }
-
-                LatLng currentPos = GetCurrentLocation();
-                float[] result = new float[1];
-                Location.distanceBetween(currentPos.latitude,currentPos.longitude,markerPos.latitude,markerPos.longitude,result);
-                if (result[0] > maxDistanceVisibleMarker && started && !markerLocations.get(i).isVisible())
-                {
-                    options.visible(false);
-                }
-
+                
                 markerEntity = markerLocations.get(i);
 
                 com.google.android.gms.maps.model.Marker m = mMap.addMarker(options);
@@ -465,12 +473,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 markerEntity.setMapMarker(m);
                 markerLocations.set(i, markerEntity);
             }
-            pd.dismiss();
+           // pd.dismiss();
             ZoomCameraToCurrentPosition();
         }
         else
         {
-            pd.dismiss();
+            //pd.dismiss();
         }
     }
 
@@ -926,6 +934,78 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             answerRadio3.setText((String) questionData.get(3));
             answerRadio4.setText((String) questionData.get(4));
             correctAnswer = questionData.get(5);
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+        }
+    }
+
+    public class GetNumberOfMarkersCompleted extends AsyncTask<String, String, Integer>
+    {
+        @Override
+        protected Integer doInBackground(String... urlString) {
+
+            int count = 0;
+
+            try
+            {
+                URL url = new URL(urlString[0]);
+
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+                BufferedReader bufferedReader = new BufferedReader(
+                        new InputStreamReader(urlConnection.getInputStream()));
+
+                String next;
+
+                while ((next = bufferedReader.readLine()) != null)
+                {
+                    JSONArray ja = new JSONArray(next);
+
+                    for (int i = 0; i < ja.length(); i++)
+                    {
+                        JSONObject jo = (JSONObject) ja.get(i);
+
+                        if (Boolean.parseBoolean(jo.getString("answered")))
+                        {
+                            count ++;
+                        }
+                    }
+                }
+            }
+            catch(MalformedURLException e)
+            {
+                e.printStackTrace();
+            }
+            catch(IOException e)
+            {
+                e.printStackTrace();
+            }
+            catch(JSONException e)
+            {
+                e.printStackTrace();
+            }
+
+            return count;
+        }
+
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+            //pd = ProgressDialog.show(MapsActivity.this, "Loading", "Please wait...");
+
+        }
+
+        @Override
+        protected void onPostExecute(Integer completedCount)
+        {
+            TextView completedMarkers = (TextView) findViewById(R.id.markerCountText);
+            completedMarkers.setText(completedCount + " / " + markerLocations.size());
+            pd.dismiss();
         }
 
         @Override

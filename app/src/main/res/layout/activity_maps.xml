@@ -5,26 +5,16 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_weight="0.09"
-        android:id="@+id/linearLayout">
-
-    </LinearLayout>
 
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_weight="1"
-        android:layout_below="@+id/linearLayout"
-        android:layout_alignParentBottom="true"/>
-
-
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true" />
 
     <android.support.design.widget.FloatingActionButton
         android:layout_width="100dp"
@@ -34,9 +24,9 @@
         app:srcCompat="@drawable/ic_media_play"
         android:id="@+id/floatingStartButton"
         app:backgroundTint="@android:color/holo_green_dark"
-        android:layout_marginTop="43dp"
-        android:layout_below="@+id/linearLayout"
-        android:layout_alignEnd="@+id/floatingQRbutton"/>
+        android:layout_marginTop="15dp"
+        android:layout_alignEnd="@+id/floatingQRbutton"
+        android:layout_alignStart="@+id/floatingQRbutton" />
 
     <android.support.design.widget.FloatingActionButton
         android:layout_width="65dp"
@@ -52,6 +42,28 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         app:fabSize="normal"/>
+
+    <TextView
+        android:text="0 / 10"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/markerCountText"
+        android:textAlignment="textStart"
+        android:paddingTop="15dp"
+        android:textScaleX="2"
+        android:layout_toEndOf="@+id/imageView"
+        android:layout_alignBottom="@+id/floatingQRbutton"
+        android:layout_alignTop="@+id/floatingQRbutton" />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/greenmarkersmall"
+        android:id="@+id/imageView"
+        android:layout_alignTop="@+id/markerCountText"
+        android:layout_alignParentStart="true"
+        android:layout_alignBottom="@+id/markerCountText" />
+    />
 
 
 </RelativeLayout>

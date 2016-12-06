@@ -534,7 +534,7 @@ public class HomeActivity extends AppCompatActivity {
                     {
                         ListView speurtochtListView = (ListView) findViewById(R.id.home_speurtocht_list);
 
-                        speurtochtListView.getChildAt(q).setBackgroundColor(Color.BLUE);
+                        speurtochtListView.getChildAt(q).setBackgroundColor(Color.CYAN);
                     }
                 }
             }
