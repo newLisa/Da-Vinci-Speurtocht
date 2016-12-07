@@ -153,7 +153,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public boolean onMarkerClick(final com.google.android.gms.maps.model.Marker marker)
             {
-
                 LocationUserController locationUserController = new LocationUserController();
                 locationUserList = locationUserController.getLocationUserArray(user_id, quest.getId());
 
@@ -518,135 +517,126 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     void ShowMarkerQuestion(final Marker marker)
     {
-        if (!marker.getAnswered())
+        for (int g = 0; g < markerLocations.size(); g++)
         {
-            for (int g = 0; g < markerLocations.size(); g++)
+            if (markerLocations.get(g).getId() == marker.getId())
             {
-                if (markerLocations.get(g).getId() == marker.getId())
-                {
-                    markerLocations.get(g).setAnswered(true);
-                    break;
-                }
-            }
-            LocationUserController locationUserController = new LocationUserController();
-            locationUserList = locationUserController.getLocationUserArray(user_id, quest.getId());
-
-            int answered = 0;
-
-            for (int i = 0; i < locationUserList.size(); i++)
-            {
-                if (locationUserList.get(i).getLocation_id() == marker.getId())
-                {
-                    answered = locationUserList.get(i).getAnswered();
-                    if (answered == 1)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            if (started)
-            {
-                final Dialog dialog = new Dialog(MapsActivity.this);
-                dialog.setContentView(R.layout.custom_marker_dialog);
-                dialog.setTitle(marker.getMapMarker().getTitle());
-
-                ImageView img = (ImageView) dialog.findViewById(R.id.custom_dialog_image);
-                img.setImageResource(R.drawable.paardenbloem);
-
-                TextView infoTextView = (TextView) dialog.findViewById(R.id.custom_dialog_info);
-                infoTextView.setText(marker.getMapMarker().getSnippet());
-
-                questionText = (TextView) dialog.findViewById(R.id.QuestionText);
-                answerRadio1 = (RadioButton) dialog.findViewById(R.id.answerRadio1);
-                answerRadio2 = (RadioButton) dialog.findViewById(R.id.answerRadio2);
-                answerRadio3 = (RadioButton) dialog.findViewById(R.id.answerRadio3);
-                answerRadio4 = (RadioButton) dialog.findViewById(R.id.answerRadio4);
-
-                answerButton = (Button) dialog.findViewById(R.id.answerButton);
-                if (answered == 1)
-                {
-                    questionText.setVisibility(View.GONE);
-                    answerRadio1.setVisibility(View.GONE);
-                    answerRadio2.setVisibility(View.GONE);
-                    answerRadio3.setVisibility(View.GONE);
-                    answerRadio4.setVisibility(View.GONE);
-                    answerButton.setVisibility(View.GONE);
-
-                }
-
-                answerButton.setOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View view)
-                    {
-
-                        answerRadioGroup = (RadioGroup) dialog.findViewById(R.id.answerRadioGroup);
-                        int selectedRadiobuttonId = answerRadioGroup.getCheckedRadioButtonId();
-                        RadioButton selectedRadioButton = (RadioButton) answerRadioGroup.findViewById(selectedRadiobuttonId);
-                        String answer = selectedRadioButton.getText().toString();
-                        LocationUser locationUser = new LocationUser();
-                        locationUser.setUser_id(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt("user_id", 0));
-                        locationUser.setLocation_id(marker.getId());
-                        locationUser.setQuest_id(quest.getId());
-                        LocationUserController locationUserController = new LocationUserController();
-                        com.google.android.gms.maps.model.Marker mapMarker = marker.getMapMarker();
-                        Context context = getApplicationContext();
-                        CharSequence text;
-                        if (correctAnswer.equals(answer))
-                        {
-                            text = "Goed beantwoord! +10 punten";
-                            locationUser.setAnswered_correct("true");
-                            if (marker.isQr())
-                            {
-
-
-                                mapMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenqrsmall));
-                                Log.w("MapMarkerId: ", mapMarker.getId().toString());
-                            }
-                            else
-                            {
-                                mapMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
-                                Log.w("MapMarkerId: ", mapMarker.getId().toString());
-                            }
-                        }
-                        else
-                        {
-                            locationUser.setAnswered_correct("false");
-                            if (marker.isQr())
-                            {
-                                mapMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redqrsmall));
-                            }
-                            else
-                            {
-                                mapMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
-                            }
-                            text = "Fout beantwoord!";
-
-
-                        }
-                        int duration = Toast.LENGTH_LONG;
-                        Toast toast = Toast.makeText(context, text, duration);
-                        toast.show();
-
-                        locationUser.setAnswered("true");
-                        locationUserController.postLocationUser(locationUser);
-                        dialog.cancel();
-                        //TODO Dit moet nog vervangen worden voor iets beters dit reload heel de activity om de kleur te veranderen maar dit moet direct zoals bij een niet QR vraag
-                        MapsActivity.this.recreate();
-                    }
-                });
-
-                if (marker != null)
-                {
-                    int vraagId = marker.getVraag_id();
-                    GetQuestion getq = new GetQuestion();
-                    getq.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/vraag/" + Integer.toString(vraagId));
-                }
-                dialog.show();
+                markerLocations.get(g).setAnswered(true);
+                break;
             }
         }
 
+        LocationUserController locationUserController = new LocationUserController();
+        locationUserList = locationUserController.getLocationUserArray(user_id, quest.getId());
+
+        int answered = 0;
+
+        for (int i = 0; i < locationUserList.size(); i++)
+        {
+            if (locationUserList.get(i).getLocation_id() == marker.getId())
+            {
+                answered = locationUserList.get(i).getAnswered();
+                if (answered == 1)
+                {
+                    break;
+                }
+            }
+        }
+
+        if (started)
+        {
+            final Dialog dialog = new Dialog(MapsActivity.this);
+            dialog.setContentView(R.layout.custom_marker_dialog);
+            dialog.setTitle(marker.getMapMarker().getTitle());
+
+            ImageView img = (ImageView) dialog.findViewById(R.id.custom_dialog_image);
+            img.setImageResource(R.drawable.paardenbloem);
+
+            TextView infoTextView = (TextView) dialog.findViewById(R.id.custom_dialog_info);
+            infoTextView.setText(marker.getMapMarker().getSnippet());
+
+            questionText = (TextView) dialog.findViewById(R.id.QuestionText);
+            answerRadio1 = (RadioButton) dialog.findViewById(R.id.answerRadio1);
+            answerRadio2 = (RadioButton) dialog.findViewById(R.id.answerRadio2);
+            answerRadio3 = (RadioButton) dialog.findViewById(R.id.answerRadio3);
+            answerRadio4 = (RadioButton) dialog.findViewById(R.id.answerRadio4);
+
+            answerButton = (Button) dialog.findViewById(R.id.answerButton);
+            if (answered == 1)
+            {
+                questionText.setVisibility(View.GONE);
+                answerRadio1.setVisibility(View.GONE);
+                answerRadio2.setVisibility(View.GONE);
+                answerRadio3.setVisibility(View.GONE);
+                answerRadio4.setVisibility(View.GONE);
+                answerButton.setVisibility(View.GONE);
+            }
+
+            answerButton.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View view)
+                {
+                    answerRadioGroup = (RadioGroup) dialog.findViewById(R.id.answerRadioGroup);
+                    int selectedRadiobuttonId = answerRadioGroup.getCheckedRadioButtonId();
+                    RadioButton selectedRadioButton = (RadioButton) answerRadioGroup.findViewById(selectedRadiobuttonId);
+                    String answer = selectedRadioButton.getText().toString();
+                    LocationUser locationUser = new LocationUser();
+                    locationUser.setUser_id(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt("user_id", 0));
+                    locationUser.setLocation_id(marker.getId());
+                    locationUser.setQuest_id(quest.getId());
+                    LocationUserController locationUserController = new LocationUserController();
+                    com.google.android.gms.maps.model.Marker mapMarker = marker.getMapMarker();
+                    Context context = getApplicationContext();
+                    CharSequence text;
+                    if (correctAnswer.equals(answer))
+                    {
+                        text = "Goed beantwoord! +10 punten";
+                        locationUser.setAnswered_correct("true");
+                        if (marker.isQr())
+                        {
+                            mapMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenqrsmall));
+                            Log.w("MapMarkerId: ", mapMarker.getId().toString());
+                        }
+                        else
+                        {
+                            mapMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
+                            Log.w("MapMarkerId: ", mapMarker.getId().toString());
+                        }
+                    }
+                    else
+                    {
+                        locationUser.setAnswered_correct("false");
+                        if (marker.isQr())
+                        {
+                            mapMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redqrsmall));
+                        }
+                        else
+                        {
+                            mapMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
+                        }
+                        text = "Fout beantwoord!";
+                    }
+                    int duration = Toast.LENGTH_LONG;
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+
+                    locationUser.setAnswered("true");
+                    locationUserController.postLocationUser(locationUser);
+                    dialog.cancel();
+                    //TODO Dit moet nog vervangen worden voor iets beters dit reload heel de activity om de kleur te veranderen maar dit moet direct zoals bij een niet QR vraag
+                    MapsActivity.this.recreate();
+                }
+            });
+
+            if (marker != null)
+            {
+                int vraagId = marker.getVraag_id();
+                GetQuestion getq = new GetQuestion();
+                getq.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/vraag/" + Integer.toString(vraagId));
+            }
+            dialog.show();
+        }
     }
 
     //Sets  marker at the users current location
@@ -689,7 +679,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return pos;
     }
 
-    protected void onStart() {
+    protected void onStart()
+    {
         mGoogleApiClient.connect();
         super.onStart();
         // ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -697,7 +688,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         AppIndex.AppIndexApi.start(mGoogleApiClient, getIndexApiAction());
     }
 
-    protected void onStop() {
+    protected void onStop()
+    {
         mGoogleApiClient.disconnect();
         super.onStop();// ATTENTION: This was auto-generated to implement the App Indexing API.
 // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -718,7 +710,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
-    public Action getIndexApiAction() {
+    public Action getIndexApiAction()
+    {
         Thing object = new Thing.Builder()
                 .setName("Maps Page") // TODO: Define a title for the content shown.
                 // TODO: Make sure this auto-generated URL is correct.
@@ -806,8 +799,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         protected void onPostExecute(ArrayList locations)
         {
             markerLocations = locations;
-
-
             PlaceMarkers();
         }
 
@@ -1068,7 +1059,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return null;
     }
 
-
     public Boolean isInRange(Marker endPoint)
     {
         LatLng currentPos = GetCurrentLocation();
@@ -1078,8 +1068,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         {
             return true;
         }
-
         return false;
     }
-
 }

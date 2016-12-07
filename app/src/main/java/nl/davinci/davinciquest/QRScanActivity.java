@@ -66,9 +66,7 @@ public class QRScanActivity extends AppCompatActivity implements ZXingScannerVie
     {
         super.onResume();
         mScannerView.setResultHandler(this);
-      //  mScannerView.resumeCameraPreview(this);
         mScannerView.startCamera();
-
     }
 
     @Override
@@ -95,7 +93,7 @@ public class QRScanActivity extends AppCompatActivity implements ZXingScannerVie
             Intent intent = new Intent();
             intent.putExtra("markerId", result.getText());
             setResult(RESULT_OK, intent);
-            this.finish();
+            onBackPressed();
         }
     }
 }
