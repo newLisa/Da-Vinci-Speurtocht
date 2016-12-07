@@ -213,7 +213,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         answerRadio3.setVisibility(View.GONE);
                         answerRadio4.setVisibility(View.GONE);
                         answerButton.setVisibility(View.GONE);
-
                     }
                     answerButton.setOnClickListener(new View.OnClickListener()
                     {
