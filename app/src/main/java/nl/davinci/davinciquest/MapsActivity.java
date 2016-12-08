@@ -80,6 +80,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<Marker> markerLocations = new ArrayList<>();
     ArrayList<Quest> userQuestList = new ArrayList<>();
     ArrayList<LocationUser> locationUserList = new ArrayList();
+    ArrayList<Highscore> highscoreList = new ArrayList();
     QuestUserController questUserController = new QuestUserController();
     Quest quest = new Quest();
 
@@ -130,6 +131,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 startButton.hide();
             }
         }
+
+
     }
 
     /**
@@ -306,6 +309,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             GetNumberOfMarkersCompleted mc = new GetNumberOfMarkersCompleted();
             mc.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/locationuser/" + user_id + "/" + speurtochtId);
+
+            HighscoreController highscoreController = new HighscoreController();
+            highscoreList = highscoreController.GetHighscores();
         }
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
