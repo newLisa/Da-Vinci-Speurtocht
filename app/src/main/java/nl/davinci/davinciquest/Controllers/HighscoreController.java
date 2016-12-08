@@ -20,6 +20,7 @@ import java.util.concurrent.ExecutionException;
 
 import nl.davinci.davinciquest.Entity.Highscore;
 import nl.davinci.davinciquest.Entity.LocationUser;
+import nl.davinci.davinciquest.Entity.User;
 import nl.davinci.davinciquest.Helper.StreamReader;
 
 /**
@@ -98,10 +99,10 @@ public class HighscoreController {
         }
     }
 
-    public ArrayList<Highscore> GetHighscores() {
+    public ArrayList<Highscore> GetHighscoresByQuestId(Integer questId) {
         GetHighScoreBackGround getHighScoreBackGround = new GetHighScoreBackGround();
         try {
-            return getHighScoreBackGround.execute().get();
+            return getHighScoreBackGround.execute(questId).get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -111,20 +112,20 @@ public class HighscoreController {
         return null;
     }
 
-    public class GetHighScoreBackGround extends AsyncTask<String , Void ,ArrayList<Highscore>>
+    public class GetHighScoreBackGround extends AsyncTask<Integer , Void ,ArrayList<Highscore>>
     {
         String server_response;
         StreamReader streamReader = new StreamReader();
 
         @Override
-        protected ArrayList<Highscore> doInBackground(String... params)
+        protected ArrayList<Highscore> doInBackground(Integer... questId)
         {
             URL url;
             ArrayList<Highscore> highscores = new ArrayList();
 
             try
             {
-                url = new URL("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/highscores");
+                url = new URL("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/highscores/" + questId[0]);
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
@@ -140,11 +141,18 @@ public class HighscoreController {
                     {
                         JSONObject jo = (JSONObject) ja.get(i);
                         Highscore highscore = new Highscore();
+                        User user = new User();
                         highscore.setId(Integer.parseInt(jo.getString("id")));
                         highscore.setUserId(Integer.parseInt(jo.getString("user_id")));
                         highscore.setQuestId(Integer.parseInt(jo.getString("quest_id")));
                         highscore.setScore(Integer.parseInt(jo.getString("score")));
-                        String string = jo.getString("user");
+                        JSONArray userArray = jo.getJSONArray("user");
+                        JSONObject userObject = userArray.getJSONObject(0);
+                        user.setId(Integer.parseInt(userObject.getString("id")));
+                        user.setName(userObject.getString("name"));
+                        user.setPin(Integer.parseInt(userObject.getString("pin")));
+                        highscore.setUser(user);
+
 
                         highscores.add(highscore);
                     }
@@ -168,6 +176,86 @@ public class HighscoreController {
 
         @Override
         protected void onPostExecute(ArrayList<Highscore> s)
+        {
+
+
+        }
+    }
+
+    public Highscore GetHighscoresByQuestIdAndUserId(Integer questId, Integer userId) {
+        GetHighScoreByQuestIdAndUserIdBackGround getHighScoreByQuestIdAndUserIdBackGround = new GetHighScoreByQuestIdAndUserIdBackGround();
+        try {
+            return getHighScoreByQuestIdAndUserIdBackGround.execute(questId, userId).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public class GetHighScoreByQuestIdAndUserIdBackGround extends AsyncTask<Integer, Void ,Highscore>
+    {
+        String server_response;
+        StreamReader streamReader = new StreamReader();
+
+        @Override
+        protected Highscore doInBackground(Integer... ids)
+        {
+            URL url;
+            Highscore highscore = new Highscore();
+            try
+            {
+                url = new URL("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/highscores/" + ids[0] + "/" + ids[1]);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+                BufferedReader bufferedReader = new BufferedReader(
+                        new InputStreamReader(urlConnection.getInputStream()));
+
+                String next;
+                while ((next = bufferedReader.readLine()) != null)
+                {
+                    JSONArray ja = new JSONArray(next);
+
+                    for (int i = 0; i < ja.length(); i++)
+                    {
+                        JSONObject jo = (JSONObject) ja.get(i);
+
+                        User user = new User();
+                        highscore.setId(Integer.parseInt(jo.getString("id")));
+                        highscore.setUserId(Integer.parseInt(jo.getString("user_id")));
+                        highscore.setQuestId(Integer.parseInt(jo.getString("quest_id")));
+                        highscore.setScore(Integer.parseInt(jo.getString("score")));
+                        JSONArray userArray = jo.getJSONArray("user");
+                        JSONObject userObject = userArray.getJSONObject(0);
+                        user.setId(Integer.parseInt(userObject.getString("id")));
+                        user.setName(userObject.getString("name"));
+                        user.setPin(Integer.parseInt(userObject.getString("pin")));
+                        highscore.setUser(user);
+
+                    }
+                }
+            }
+            catch(MalformedURLException e)
+            {
+                e.printStackTrace();
+            }
+            catch(IOException e)
+            {
+                e.printStackTrace();
+            }
+            catch(JSONException e)
+            {
+                e.printStackTrace();
+            }
+
+            return highscore;
+        }
+
+        @Override
+        protected void onPostExecute(Highscore s)
         {
 
 

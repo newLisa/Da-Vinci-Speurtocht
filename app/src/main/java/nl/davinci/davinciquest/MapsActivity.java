@@ -80,8 +80,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<Marker> markerLocations = new ArrayList<>();
     ArrayList<Quest> userQuestList = new ArrayList<>();
     ArrayList<LocationUser> locationUserList = new ArrayList();
-    ArrayList<Highscore> highscoreList = new ArrayList();
     QuestUserController questUserController = new QuestUserController();
+    HighscoreController highscoreController = new HighscoreController();
+    Highscore highscore = new Highscore();
     Quest quest = new Quest();
 
     GoogleApiClient mGoogleApiClient;
@@ -310,8 +311,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             GetNumberOfMarkersCompleted mc = new GetNumberOfMarkersCompleted();
             mc.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/locationuser/" + user_id + "/" + speurtochtId);
 
-            HighscoreController highscoreController = new HighscoreController();
-            highscoreList = highscoreController.GetHighscores();
+            highscore = highscoreController.GetHighscoresByQuestIdAndUserId(speurtochtId, user_id);
+            totalScoreTextView.setText("Score: " + highscore.getScore());
         }
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
@@ -609,7 +610,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     if (correctAnswer.equals(answer))
                     {
                         text = "Goed beantwoord! +" + pointsScored + " punten";
-                        totalScore += pointsScored;
+                        highscore.setScore(highscore.getScore() + pointsScored);
                         totalScoreTextView.setText("Score: " + totalScore);
 
                         Highscore highscoreEntity = new Highscore();
@@ -617,10 +618,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         highscoreEntity.setQuestId(speurtochtId);
                         highscoreEntity.setScore(totalScore);
 
-                        HighscoreController highScoreController = new HighscoreController();
-                        if( !highScoreController.PostHighscore(highscoreEntity))
+                        if( !highscoreController.PostHighscore(highscore))
                         {
-                            Log.w("HigscoreControler", "Could not preform post");
+                            Log.w("HighscoreControler", "Could not preform post");
+                            totalScoreTextView.setText("Score: " + highscore.getScore());
                         }
 
                         locationUser.setAnswered_correct("true");
