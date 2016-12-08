@@ -10,6 +10,7 @@ public class Highscore
     private int score;
     private int userId;
     private int questId;
+    private User user;
 
     public int getId()
     {
@@ -49,5 +50,13 @@ public class Highscore
     public void setQuestId(int questId)
     {
         this.questId = questId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
