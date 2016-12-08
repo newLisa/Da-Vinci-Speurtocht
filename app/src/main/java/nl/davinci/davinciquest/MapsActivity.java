@@ -78,7 +78,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Quest quest = new Quest();
     ArrayList<Quest> userQuestList = new ArrayList<>();
     QuestUserController questUserController = new QuestUserController();
-    TextView questionText;
+    TextView questionText, totalScoreTextView;
     RadioGroup answerRadioGroup;
     RadioButton answerRadio1, answerRadio2, answerRadio3, answerRadio4;
     String correctAnswer;
@@ -86,7 +86,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<LocationUser> locationUserList = new ArrayList();
     ProgressDialog pd;
     LocationRequest mLocationRequest;
-    static int id;
+    static int id, pointsScored, totalScore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -100,6 +100,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         speurtochtId = extras.getInt("id");
         GetQuestData(speurtochtId);
         user_id = extras.getInt("user_id");
+
+        totalScoreTextView = (TextView) findViewById(R.id.totalScore);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -591,7 +593,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     CharSequence text;
                     if (correctAnswer.equals(answer))
                     {
-                        text = "Goed beantwoord! +10 punten";
+                        text = "Goed beantwoord! +" + pointsScored + " punten";
+                        totalScore += pointsScored;
+                        totalScoreTextView.setText("Score: " + totalScore);
+
                         locationUser.setAnswered_correct("true");
                         if (marker.isQr())
                         {
@@ -606,6 +611,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                     else
                     {
+                        text = "Helaas, Fout beantwoord!";
                         locationUser.setAnswered_correct("false");
                         if (marker.isQr())
                         {
@@ -615,7 +621,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         {
                             mapMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
                         }
-                        text = "Fout beantwoord!";
                     }
                     int duration = Toast.LENGTH_LONG;
                     Toast toast = Toast.makeText(context, text, duration);
@@ -892,6 +897,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     questionData.add(jo.getString("answer_3"));
                     questionData.add(jo.getString("answer_4"));
                     questionData.add(jo.getString("correct_answer"));
+                    questionData.add(jo.getString("points"));
                 }
             }catch(MalformedURLException e)
             {
@@ -924,6 +930,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             answerRadio3.setText((String) questionData.get(3));
             answerRadio4.setText((String) questionData.get(4));
             correctAnswer = questionData.get(5);
+            pointsScored = Integer.parseInt(questionData.get(6));
         }
 
         @Override

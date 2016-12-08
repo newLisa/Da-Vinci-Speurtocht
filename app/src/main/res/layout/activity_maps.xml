@@ -6,16 +6,6 @@
     android:orientation="vertical">
 
 
-    <fragment
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true" />
-
     <android.support.design.widget.FloatingActionButton
         android:layout_width="100dp"
         android:layout_height="100dp"
@@ -63,7 +53,26 @@
         android:layout_alignTop="@+id/markerCountText"
         android:layout_alignParentStart="true"
         android:layout_alignBottom="@+id/markerCountText" />
-    />
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"/>
+
+    <TextView
+        android:text="Total Score: "
+        android:textAlignment="textStart"
+        android:textScaleX="2"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/totalScore"
+        android:layout_marginBottom="17dp"
+        android:layout_alignBottom="@+id/floatingStartButton"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="14dp"/>
 
 
 </RelativeLayout>
