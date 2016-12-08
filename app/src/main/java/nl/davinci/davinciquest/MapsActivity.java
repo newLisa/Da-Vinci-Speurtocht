@@ -43,6 +43,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.android.gms.tasks.RuntimeExecutionException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -58,9 +59,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
+import nl.davinci.davinciquest.Controllers.HighscoreController;
 import nl.davinci.davinciquest.Controllers.LocationUserController;
 import nl.davinci.davinciquest.Controllers.QuestController;
 import nl.davinci.davinciquest.Controllers.QuestUserController;
+import nl.davinci.davinciquest.Entity.Highscore;
 import nl.davinci.davinciquest.Entity.LocationUser;
 import nl.davinci.davinciquest.Entity.Marker;
 import nl.davinci.davinciquest.Entity.Quest;
@@ -68,25 +71,26 @@ import nl.davinci.davinciquest.Entity.Quest;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener
 {
     private GoogleMap mMap;
+    int markersCompleted = 0, pointsScored, totalScore, speurtochtId, user_id;
+    static int id;
+    float maxDistanceVisibleMarker = 50;
+    String correctAnswer;
+    Boolean started = false, isDailogOpen = false;
+
+    ArrayList<Marker> markerLocations = new ArrayList<>();
+    ArrayList<Quest> userQuestList = new ArrayList<>();
+    ArrayList<LocationUser> locationUserList = new ArrayList();
+    QuestUserController questUserController = new QuestUserController();
+    Quest quest = new Quest();
+
     GoogleApiClient mGoogleApiClient;
+    LocationRequest mLocationRequest;
     Button answerButton;
     FloatingActionButton qrButton, startButton;
-    int markersCompleted = 0;
-    float maxDistanceVisibleMarker = 50;
-    ArrayList<Marker> markerLocations = new ArrayList<>();
-    int speurtochtId, user_id;
-    Quest quest = new Quest();
-    ArrayList<Quest> userQuestList = new ArrayList<>();
-    QuestUserController questUserController = new QuestUserController();
     TextView questionText, totalScoreTextView;
     RadioGroup answerRadioGroup;
     RadioButton answerRadio1, answerRadio2, answerRadio3, answerRadio4;
-    String correctAnswer;
-    Boolean started = false;
-    ArrayList<LocationUser> locationUserList = new ArrayList();
     ProgressDialog pd;
-    LocationRequest mLocationRequest;
-    static int id, pointsScored, totalScore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -220,6 +224,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         @Override
                         public void onClick(View view)
                         {
+                            isDailogOpen = false;
                             Marker currentMarker = (Marker) marker.getTag();
                             answerRadioGroup = (RadioGroup) dialog.findViewById(R.id.answerRadioGroup);
                             int selectedRadiobuttonId = answerRadioGroup.getCheckedRadioButtonId();
@@ -507,7 +512,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         markerLocations.get(i).getMapMarker().setVisible(true);
                         if (!markerLocations.get(i).getAnswered() && !markerLocations.get(i).isQr() && result[0] < maxDistanceVisibleMarker)
                         {
-                            ShowMarkerQuestion(getSingleMarker(markerLocations.get(i).getId()));
+                            if(!isDailogOpen)
+                            {
+                                ShowMarkerQuestion(getSingleMarker(markerLocations.get(i).getId()));
+                            }
                         }
                     }
                 }
@@ -547,6 +555,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if (started)
         {
+            isDailogOpen = true;
             final Dialog dialog = new Dialog(MapsActivity.this);
             dialog.setContentView(R.layout.custom_marker_dialog);
             dialog.setTitle(marker.getMapMarker().getTitle());
@@ -597,6 +606,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         totalScore += pointsScored;
                         totalScoreTextView.setText("Score: " + totalScore);
 
+                        Highscore highscoreEntity = new Highscore();
+                        highscoreEntity.setUserId(user_id);
+                        highscoreEntity.setQuestId(speurtochtId);
+                        highscoreEntity.setScore(totalScore);
+
+                        HighscoreController highScoreController = new HighscoreController();
+                        if( !highScoreController.PostHighscore(highscoreEntity))
+                        {
+                            Log.w("HigscoreControler", "Could not preform post");
+                        }
+
                         locationUser.setAnswered_correct("true");
                         if (marker.isQr())
                         {
@@ -629,8 +649,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     locationUser.setAnswered("true");
                     locationUserController.postLocationUser(locationUser);
                     dialog.cancel();
+
                     //TODO Dit moet nog vervangen worden voor iets beters dit reload heel de activity om de kleur te veranderen maar dit moet direct zoals bij een niet QR vraag
-                    MapsActivity.this.recreate();
+                    if(marker.isQr())
+                    {
+                        MapsActivity.this.recreate();
+                    }
                 }
             });
 
