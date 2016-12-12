@@ -11,6 +11,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -89,7 +90,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LocationRequest mLocationRequest;
     Button answerButton;
     FloatingActionButton qrButton, startButton;
-    TextView questionText, totalScoreTextView;
+    TextView questionText, totalScoreTextView, completedMarkers;
     RadioGroup answerRadioGroup;
     RadioButton answerRadio1, answerRadio2, answerRadio3, answerRadio4;
     ProgressDialog pd;
@@ -108,6 +109,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         user_id = extras.getInt("user_id");
 
         totalScoreTextView = (TextView) findViewById(R.id.totalScore);
+        completedMarkers = (TextView) findViewById(R.id.markerCountText);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -300,19 +302,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Polygon polygon = mMap.addPolygon(rectOptions);
     }
 
+    public void updateLabels()
+    {
+        totalScoreTextView.setText("Score: " + highscore.getScore());
+        completedMarkers.setText(highscore.getMarkersCompleted() + " / " + markerLocations.size());
+    }
+
     @Override
     public void onConnected(Bundle connectionHint)
     {
         if (speurtochtId > 0)
         {
+            highscore = highscoreController.GetHighscoresByQuestIdAndUserId(speurtochtId, user_id);
+            highscore.setUserId(user_id);
+            highscore.setQuestId(speurtochtId);
             GetSpeurtochtJsonData gs = new GetSpeurtochtJsonData();
             gs.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtlocatie/" + speurtochtId);
 
-            GetNumberOfMarkersCompleted mc = new GetNumberOfMarkersCompleted();
-            mc.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/locationuser/" + user_id + "/" + speurtochtId);
 
-            highscore = highscoreController.GetHighscoresByQuestIdAndUserId(speurtochtId, user_id);
-            totalScoreTextView.setText("Score: " + highscore.getScore());
+
+
         }
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
@@ -611,57 +620,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     {
                         text = "Goed beantwoord! +" + pointsScored + " punten";
                         highscore.setScore(highscore.getScore() + pointsScored);
-                        totalScoreTextView.setText("Score: " + totalScore);
-
-                        Highscore highscoreEntity = new Highscore();
-                        highscoreEntity.setUserId(user_id);
-                        highscoreEntity.setQuestId(speurtochtId);
-                        highscoreEntity.setScore(totalScore);
-
+                        highscore.setMarkersCompleted(highscore.getMarkersCompleted() + 1);
+                        updateLabels();
                         if( !highscoreController.PostHighscore(highscore))
                         {
                             Log.w("HighscoreControler", "Could not preform post");
-                            totalScoreTextView.setText("Score: " + highscore.getScore());
+                            updateLabels();
                         }
-
                         locationUser.setAnswered_correct("true");
-                        if (marker.isQr())
-                        {
-                            mapMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenqrsmall));
-                            Log.w("MapMarkerId: ", mapMarker.getId().toString());
-                        }
-                        else
-                        {
-                            mapMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenmarkersmall));
-                            Log.w("MapMarkerId: ", mapMarker.getId().toString());
-                        }
                     }
                     else
                     {
                         text = "Helaas, Fout beantwoord!";
                         locationUser.setAnswered_correct("false");
-                        if (marker.isQr())
-                        {
-                            mapMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redqrsmall));
-                        }
-                        else
-                        {
-                            mapMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
-                        }
                     }
                     int duration = Toast.LENGTH_LONG;
                     Toast toast = Toast.makeText(context, text, duration);
                     toast.show();
-
                     locationUser.setAnswered("true");
                     locationUserController.postLocationUser(locationUser);
                     dialog.cancel();
-
-                    //TODO Dit moet nog vervangen worden voor iets beters dit reload heel de activity om de kleur te veranderen maar dit moet direct zoals bij een niet QR vraag
-                    if(marker.isQr())
-                    {
-                        MapsActivity.this.recreate();
-                    }
+                    PlaceMarkers();
                 }
             });
 
@@ -835,7 +814,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         protected void onPostExecute(ArrayList locations)
         {
             markerLocations = locations;
+            updateLabels();
             PlaceMarkers();
+            pd.dismiss();
         }
 
         @Override
@@ -970,77 +951,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    public class GetNumberOfMarkersCompleted extends AsyncTask<String, String, Integer>
-    {
-        @Override
-        protected Integer doInBackground(String... urlString) {
-
-            int count = 0;
-
-            try
-            {
-                URL url = new URL(urlString[0]);
-
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-                BufferedReader bufferedReader = new BufferedReader(
-                        new InputStreamReader(urlConnection.getInputStream()));
-
-                String next;
-
-                while ((next = bufferedReader.readLine()) != null)
-                {
-                    JSONArray ja = new JSONArray(next);
-
-                    for (int i = 0; i < ja.length(); i++)
-                    {
-                        JSONObject jo = (JSONObject) ja.get(i);
-
-                        if (Boolean.parseBoolean(jo.getString("answered")))
-                        {
-                            count ++;
-                        }
-                    }
-                }
-            }
-            catch(MalformedURLException e)
-            {
-                e.printStackTrace();
-            }
-            catch(IOException e)
-            {
-                e.printStackTrace();
-            }
-            catch(JSONException e)
-            {
-                e.printStackTrace();
-            }
-
-            return count;
-        }
-
-        @Override
-        protected void onPreExecute()
-        {
-            super.onPreExecute();
-            //pd = ProgressDialog.show(MapsActivity.this, "Loading", "Please wait...");
-
-        }
-
-        @Override
-        protected void onPostExecute(Integer completedCount)
-        {
-            TextView completedMarkers = (TextView) findViewById(R.id.markerCountText);
-            completedMarkers.setText(completedCount + " / " + markerLocations.size());
-            pd.dismiss();
-        }
-
-        @Override
-        protected void onProgressUpdate(String... values) {
-            super.onProgressUpdate(values);
-        }
-    }
 
     //turn the response from the server into a readable string
     public static String readStream(InputStream in) {

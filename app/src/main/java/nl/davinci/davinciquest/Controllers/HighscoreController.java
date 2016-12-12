@@ -67,6 +67,7 @@ public class HighscoreController {
                     obj.put("score", highscore[0].getScore());
                     obj.put("user_id", highscore[0].getUserId());
                     obj.put("quest_id", highscore[0].getQuestId());
+                    obj.put("markers_completed", highscore[0].getMarkersCompleted());
 
                     // locationUser[0].getAnswered_correct()
                     wr.writeBytes(obj.toString());
@@ -146,6 +147,7 @@ public class HighscoreController {
                         highscore.setUserId(Integer.parseInt(jo.getString("user_id")));
                         highscore.setQuestId(Integer.parseInt(jo.getString("quest_id")));
                         highscore.setScore(Integer.parseInt(jo.getString("score")));
+                        highscore.setMarkersCompleted(Integer.parseInt(jo.getString("markers_completed")));
                         JSONArray userArray = jo.getJSONArray("user");
                         JSONObject userObject = userArray.getJSONObject(0);
                         user.setId(Integer.parseInt(userObject.getString("id")));
@@ -228,6 +230,7 @@ public class HighscoreController {
                         highscore.setUserId(Integer.parseInt(jo.getString("user_id")));
                         highscore.setQuestId(Integer.parseInt(jo.getString("quest_id")));
                         highscore.setScore(Integer.parseInt(jo.getString("score")));
+                        highscore.setMarkersCompleted(Integer.parseInt(jo.getString("markers_completed")));
                         JSONArray userArray = jo.getJSONArray("user");
                         JSONObject userObject = userArray.getJSONObject(0);
                         user.setId(Integer.parseInt(userObject.getString("id")));

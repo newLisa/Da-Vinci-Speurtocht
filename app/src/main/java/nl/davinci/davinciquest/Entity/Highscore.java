@@ -11,6 +11,7 @@ public class Highscore
     private int userId;
     private int questId;
     private User user;
+    private int markersCompleted;
 
     public int getId()
     {
@@ -58,5 +59,13 @@ public class Highscore
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public int getMarkersCompleted() {
+        return markersCompleted;
+    }
+
+    public void setMarkersCompleted(int markersCompleted) {
+        this.markersCompleted = markersCompleted;
     }
 }
