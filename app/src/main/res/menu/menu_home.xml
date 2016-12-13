@@ -13,8 +13,8 @@
         android:title="@string/clear_data"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_showDatabase"
+        android:id="@+id/action_showHighScores"
         android:orderInCategory="100"
-        android:title="@string/database"
+        android:title="@string/highscores"
         app:showAsAction="never" />
 </menu>

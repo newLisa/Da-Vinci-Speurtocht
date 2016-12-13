@@ -26,6 +26,7 @@
     <string name="qr_scanner">QR Scanner</string>
     <string name="database">Database</string>
     <string name="clear_data">Clear data</string>
+    <string name="highscores" translatable="false">Highcores</string>
 
 
     <!-- Strings related to permissions -->

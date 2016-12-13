@@ -18,22 +18,26 @@ import java.net.URL;
 import java.util.ArrayList;
 
 
-public class DatabaseListActivity extends ListActivity
+public class HighScoreActivity extends ListActivity
 {
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_database_list);
+        setContentView(R.layout.activity_highscore_list);
 
-        BackgroundTask bk = new BackgroundTask();
-        bk.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/highscores");
+        Bundle extras = getIntent().getExtras();
+        int id = extras.getInt("id");
+
+        getScoresBackground bk = new getScoresBackground();
+        bk.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/highscores/" + id);
     }
 
-    public class BackgroundTask extends AsyncTask<String, String, ArrayList>
+    public class getScoresBackground extends AsyncTask<String, String, ArrayList>
     {
         @Override
-        protected ArrayList doInBackground(String... urlString) {
+        protected ArrayList doInBackground(String... urlString)
+        {
             ArrayList items = new ArrayList();
 
             try
@@ -43,8 +47,7 @@ public class DatabaseListActivity extends ListActivity
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
-                BufferedReader bufferedReader = new BufferedReader(
-                        new InputStreamReader(urlConnection.getInputStream()));
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
 
                 String next;
 
@@ -55,10 +58,13 @@ public class DatabaseListActivity extends ListActivity
                     for (int i = 0; i < ja.length(); i++)
                     {
                         JSONObject jo = (JSONObject) ja.get(i);
-                        items.add("user:" + jo.getString("user_id") + " heeft gescoord: " + jo.getString("score"));
+                        JSONArray userArray = jo.getJSONArray("user");
+                        JSONObject userObject = userArray.getJSONObject(0);
+                        items.add(jo.getString("score") + "  -  " + userObject.getString("name"));
                     }
                 }
-            }catch(MalformedURLException e)
+            }
+            catch(MalformedURLException e)
             {
                 e.printStackTrace();
             }
@@ -82,8 +88,7 @@ public class DatabaseListActivity extends ListActivity
         @Override
         protected void onPostExecute(ArrayList result)
         {
-            setListAdapter(new ArrayAdapter(DatabaseListActivity.this,android.R.layout.simple_list_item_1,result));
-
+            setListAdapter(new ArrayAdapter(HighScoreActivity.this,android.R.layout.simple_list_item_1,result));
         }
 
         @Override

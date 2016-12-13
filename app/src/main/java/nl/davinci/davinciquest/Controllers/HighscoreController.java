@@ -29,13 +29,21 @@ import nl.davinci.davinciquest.Helper.StreamReader;
 
 public class HighscoreController {
 
-    public Boolean PostHighscore(Highscore highscore) {
+    //Posts the highscore to the database
+    //returns true when the post has been succesfull
+    public Boolean PostHighscore(Highscore highscore)
+    {
         PostHighScoreBackGround postHighScoreBackGround = new PostHighScoreBackGround();
-        try {
+        try
+        {
             return postHighScoreBackGround.execute(highscore).get();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e)
+        {
             e.printStackTrace();
-        } catch (ExecutionException e) {
+        }
+        catch (ExecutionException e)
+        {
             e.printStackTrace();
         }
 
@@ -43,7 +51,8 @@ public class HighscoreController {
     }
 
     //this class sends the user data to the API in a JSON object as a POST request
-    public class PostHighScoreBackGround extends AsyncTask<Highscore, Void, Boolean> {
+    public class PostHighScoreBackGround extends AsyncTask<Highscore, Void, Boolean>
+    {
         String server_response;
         StreamReader streamReader = new StreamReader();
 
@@ -74,39 +83,50 @@ public class HighscoreController {
                     Log.e("JSON Input", obj.toString());
                     wr.flush();
                     wr.close();
-                } catch (JSONException ex) {
+                }
+                catch (JSONException ex)
+                {
                     ex.printStackTrace();
                 }
                 urlConnection.connect();
 
                 int responseCode = urlConnection.getResponseCode();
 
-                if (responseCode == HttpURLConnection.HTTP_OK) {
+                if (responseCode == HttpURLConnection.HTTP_OK)
+                {
                     server_response = streamReader.readStream(urlConnection.getInputStream());
                 }
-
-            } catch (MalformedURLException e) {
+            }
+            catch (MalformedURLException e)
+            {
                 e.printStackTrace();
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 e.printStackTrace();
             }
             return true;
         }
 
         @Override
-        protected void onPostExecute(Boolean s) {
-
-
+        protected void onPostExecute(Boolean s)
+        {
         }
     }
 
-    public ArrayList<Highscore> GetHighscoresByQuestId(Integer questId) {
+    public ArrayList<Highscore> GetHighscoresByQuestId(Integer questId)
+    {
         GetHighScoreBackGround getHighScoreBackGround = new GetHighScoreBackGround();
-        try {
+        try
+        {
             return getHighScoreBackGround.execute(questId).get();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e)
+        {
             e.printStackTrace();
-        } catch (ExecutionException e) {
+        }
+        catch (ExecutionException e)
+        {
             e.printStackTrace();
         }
 
@@ -155,7 +175,6 @@ public class HighscoreController {
                         user.setPin(Integer.parseInt(userObject.getString("pin")));
                         highscore.setUser(user);
 
-
                         highscores.add(highscore);
                     }
                 }
@@ -179,18 +198,22 @@ public class HighscoreController {
         @Override
         protected void onPostExecute(ArrayList<Highscore> s)
         {
-
-
         }
     }
 
-    public Highscore GetHighscoresByQuestIdAndUserId(Integer questId, Integer userId) {
+    public Highscore GetHighscoresByQuestIdAndUserId(Integer questId, Integer userId)
+    {
         GetHighScoreByQuestIdAndUserIdBackGround getHighScoreByQuestIdAndUserIdBackGround = new GetHighScoreByQuestIdAndUserIdBackGround();
-        try {
+        try
+        {
             return getHighScoreByQuestIdAndUserIdBackGround.execute(questId, userId).get();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e)
+        {
             e.printStackTrace();
-        } catch (ExecutionException e) {
+        }
+        catch (ExecutionException e)
+        {
             e.printStackTrace();
         }
 
@@ -213,8 +236,7 @@ public class HighscoreController {
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
-                BufferedReader bufferedReader = new BufferedReader(
-                        new InputStreamReader(urlConnection.getInputStream()));
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
 
                 String next;
                 while ((next = bufferedReader.readLine()) != null)
@@ -226,18 +248,19 @@ public class HighscoreController {
                         JSONObject jo = (JSONObject) ja.get(i);
 
                         User user = new User();
+
                         highscore.setId(Integer.parseInt(jo.getString("id")));
                         highscore.setUserId(Integer.parseInt(jo.getString("user_id")));
                         highscore.setQuestId(Integer.parseInt(jo.getString("quest_id")));
                         highscore.setScore(Integer.parseInt(jo.getString("score")));
                         highscore.setMarkersCompleted(Integer.parseInt(jo.getString("markers_completed")));
+
                         JSONArray userArray = jo.getJSONArray("user");
                         JSONObject userObject = userArray.getJSONObject(0);
                         user.setId(Integer.parseInt(userObject.getString("id")));
                         user.setName(userObject.getString("name"));
                         user.setPin(Integer.parseInt(userObject.getString("pin")));
                         highscore.setUser(user);
-
                     }
                 }
             }
@@ -260,8 +283,6 @@ public class HighscoreController {
         @Override
         protected void onPostExecute(Highscore s)
         {
-
-
         }
     }
 }

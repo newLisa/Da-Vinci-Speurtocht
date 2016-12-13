@@ -45,8 +45,8 @@ import java.util.concurrent.ExecutionException;
 import nl.davinci.davinciquest.Controllers.QuestController;
 import nl.davinci.davinciquest.Entity.Quest;
 
-public class HomeActivity extends AppCompatActivity {
-
+public class HomeActivity extends AppCompatActivity
+{
     String nickname;
     String m_Text;
     int pin, user_id;
@@ -55,7 +55,8 @@ public class HomeActivity extends AppCompatActivity {
     ProgressDialog pd;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -86,22 +87,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void SetButtonOnClickListeners()
-    {
-        //setup all the main menu buttons
-
-//        Button clearBut = (Button) findViewById(R.id.ClearButton);
-//        clearBut.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//
-//                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-//                SharedPreferences.Editor editor = sharedPrefs.edit();
-//                editor.clear();
-//                editor.commit();
-//            }
-//        });
-
-
+    { //setup all the main menu buttons
         Button joinQuestButton = (Button) findViewById(R.id.joinQuestButton);
         joinQuestButton.setOnClickListener(new View.OnClickListener()   {
             @Override
@@ -224,14 +210,16 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_home, menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -245,7 +233,8 @@ public class HomeActivity extends AppCompatActivity {
             builder.setNegativeButton("OK", new DialogInterface.OnClickListener()
             {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
+                public void onClick(DialogInterface dialog, int which)
+                {
                     dialog.cancel();
                 }
             });
@@ -254,7 +243,8 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         //Debugging option: clear data. Requires a restart
-        if (id == R.id.action_clearData) {
+        if (id == R.id.action_clearData)
+        {
             SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             SharedPreferences.Editor editor = sharedPrefs.edit();
             editor.clear();
@@ -262,9 +252,10 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         //Future highscore option
-        if (id == R.id.action_showDatabase) {
-                    Intent i = new Intent(getApplicationContext(), DatabaseListActivity.class);
-                    startActivity(i);
+        if (id == R.id.action_showHighScores)
+        {
+            Intent i = new Intent(getApplicationContext(), ChooseQuestHighScoreActivity.class);
+            startActivity(i);
         }
 
         return super.onOptionsItemSelected(item);
@@ -354,7 +345,8 @@ public class HomeActivity extends AppCompatActivity {
     public class GetSpeurTochtList extends AsyncTask<String, String, ArrayList<Quest>>
     {
         @Override
-        protected ArrayList doInBackground(String... urlString) {
+        protected ArrayList doInBackground(String... urlString)
+        {
             ArrayList<Quest> questList = new ArrayList();
 
             try
@@ -382,7 +374,8 @@ public class HomeActivity extends AppCompatActivity {
                         questList.add(quest);
                     }
                 }
-            }catch(MalformedURLException e)
+            }
+            catch(MalformedURLException e)
             {
                 e.printStackTrace();
             }
@@ -430,17 +423,23 @@ public class HomeActivity extends AppCompatActivity {
             });
 
             GetActiveSpeurTochtList agsl = new GetActiveSpeurTochtList();
-            try {
+            try
+            {
                 activeQuestList = agsl.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/koppeltochtuser/activetochten/" + Integer.toString(user_id)).get();
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e)
+            {
                 e.printStackTrace();
-            } catch (ExecutionException e) {
+            }
+            catch (ExecutionException e)
+            {
                 e.printStackTrace();
             }
         }
 
         @Override
-        protected void onProgressUpdate(String... values) {
+        protected void onProgressUpdate(String... values)
+        {
             super.onProgressUpdate(values);
         }
     }
@@ -505,7 +504,8 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onProgressUpdate(String... values) {
+        protected void onProgressUpdate(String... values)
+        {
             super.onProgressUpdate(values);
         }
     }
