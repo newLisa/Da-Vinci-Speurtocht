@@ -134,8 +134,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 startButton.hide();
             }
         }
-
-
     }
 
     /**
