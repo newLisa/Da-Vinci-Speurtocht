@@ -621,11 +621,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         text = "Goed beantwoord! +" + pointsScored + " punten";
                         highscore.setScore(highscore.getScore() + pointsScored);
                         highscore.setMarkersCompleted(highscore.getMarkersCompleted() + 1);
-                        updateLabels();
-                        if( !highscoreController.PostHighscore(highscore))
+                        if(!highscoreController.PostHighscore(highscore))
                         {
                             Log.w("HighscoreControler", "Could not preform post");
-                            updateLabels();
                         }
                         locationUser.setAnswered_correct("true");
                     }
@@ -633,7 +631,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     {
                         text = "Helaas, Fout beantwoord!";
                         locationUser.setAnswered_correct("false");
+                        highscore.setMarkersCompleted(highscore.getMarkersCompleted() + 1);
+                        if(!highscoreController.PostHighscore(highscore))
+                        {
+                            Log.w("HighscoreControler", "Could not preform post");
+                        }
+
                     }
+                    updateLabels();
                     int duration = Toast.LENGTH_LONG;
                     Toast toast = Toast.makeText(context, text, duration);
                     toast.show();
