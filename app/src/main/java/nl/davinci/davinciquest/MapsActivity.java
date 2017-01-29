@@ -62,6 +62,7 @@ import java.util.ArrayList;
 
 import nl.davinci.davinciquest.Controllers.HighscoreController;
 import nl.davinci.davinciquest.Controllers.LocationUserController;
+import nl.davinci.davinciquest.Controllers.PolygonController;
 import nl.davinci.davinciquest.Controllers.QuestController;
 import nl.davinci.davinciquest.Controllers.QuestUserController;
 import nl.davinci.davinciquest.Entity.Highscore;
@@ -286,14 +287,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     void DrawPolygon()
     {
+        PolygonController polygonController = new PolygonController();
+        ArrayList<nl.davinci.davinciquest.Entity.Polygon> polygons = polygonController.getPolygon(quest.getId());
+
         // Instantiates a new Polygon object and adds points to define a rectangle
-        PolygonOptions rectOptions = new PolygonOptions()
-                .add(new LatLng(51.80185467344209, 4.680642485618591),
-                        new LatLng(51.799180878825474, 4.678325057029724),
-                        new LatLng(51.79726334535511, 4.677445292472839),
-                        new LatLng(51.79665953765794, 4.679537415504456),
-                        new LatLng(51.797814064006644, 4.685030579566956),
-                        new LatLng(51.80013629759001, 4.685245156288147));
+        PolygonOptions rectOptions = new PolygonOptions();
+        for(int i = 0; i < polygons.size(); i++)
+        {
+            rectOptions.add(new LatLng(polygons.get(i).getLat(), polygons.get(i).getLng()));
+        }
+
         rectOptions.strokeColor(Color.RED);
 
         // Get back the mutable Polygon
