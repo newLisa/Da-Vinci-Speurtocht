@@ -6,4 +6,4 @@ Davinci Quest is an application for new students to explore the school through a
 
 [API](https://github.com/newLisa/SpeurtochtApi)
 
-[BEHEER](https://github.com/newLisa/davincispeurtochtbeheer)
+[Beheer](https://github.com/newLisa/davincispeurtochtbeheer)
