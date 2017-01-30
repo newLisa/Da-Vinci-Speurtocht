@@ -31,6 +31,7 @@ public class QRScanActivity extends AppCompatActivity implements ZXingScannerVie
         QrScanner();
     }
 
+    //check to seeif the app has permission to te camera
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
     {
@@ -76,6 +77,7 @@ public class QRScanActivity extends AppCompatActivity implements ZXingScannerVie
         mScannerView.stopCamera();
     }
 
+    //shows a webview of the scanned qr was a url, else if it was a markerid, send it back to the map
     @Override
     public void handleResult(Result result)
     {

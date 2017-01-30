@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+//shows the url in a webview
 public class WebViewActivity extends AppCompatActivity
 {
     String url;

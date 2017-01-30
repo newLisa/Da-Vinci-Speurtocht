@@ -33,6 +33,7 @@ public class HighScoreActivity extends ListActivity
         bk.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/highscores/" + id);
     }
 
+    //get the score dtafrom the api
     public class getScoresBackground extends AsyncTask<String, String, ArrayList>
     {
         @Override
@@ -88,6 +89,7 @@ public class HighScoreActivity extends ListActivity
         @Override
         protected void onPostExecute(ArrayList result)
         {
+            //add the data to the listview
             setListAdapter(new ArrayAdapter(HighScoreActivity.this,android.R.layout.simple_list_item_1,result));
         }
 
