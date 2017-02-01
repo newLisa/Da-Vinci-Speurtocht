@@ -190,7 +190,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     return false;
                 }
 
-                //check if clicked marker is anwered
+               /* //check if clicked marker is anwered
                 for (int i = 0; i < locationUserList.size(); i++)
                 {
                     if (locationUserList.get(i).getLocation_id() == markerEntity.getId())
@@ -201,9 +201,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             break;
                         }
                     }
-                }
+                }*/
 
-                if (started )
+                if (started && answered == 1)
                 {
                     //show dialog with marker info
                     final Dialog dialog = new Dialog(MapsActivity.this);
@@ -216,27 +216,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     TextView infoTextView = (TextView) dialog.findViewById(R.id.custom_dialog_info);
                     infoTextView.setText(marker.getSnippet());
 
+/*
                     //fill in the questions
                     questionText = (TextView) dialog.findViewById(R.id.QuestionText);
                     answerRadio1 = (RadioButton) dialog.findViewById(R.id.answerRadio1);
                     answerRadio2 = (RadioButton) dialog.findViewById(R.id.answerRadio2);
                     answerRadio3 = (RadioButton) dialog.findViewById(R.id.answerRadio3);
                     answerRadio4 = (RadioButton) dialog.findViewById(R.id.answerRadio4);
+*/
 
                     //hide the question when it has been answered
                     answerButton = (Button) dialog.findViewById(R.id.answerButton);
-                    if (answered == 1)
-                    {
-                        questionText.setVisibility(View.GONE);
-                        answerRadio1.setVisibility(View.GONE);
-                        answerRadio2.setVisibility(View.GONE);
-                        answerRadio3.setVisibility(View.GONE);
-                        answerRadio4.setVisibility(View.GONE);
-                        answerButton.setVisibility(View.GONE);
-                    }
+                    questionText.setVisibility(View.GONE);
+                    answerRadio1.setVisibility(View.GONE);
+                    answerRadio2.setVisibility(View.GONE);
+                    answerRadio3.setVisibility(View.GONE);
+                    answerRadio4.setVisibility(View.GONE);
+                    answerButton.setVisibility(View.GONE);
                     //onclick listener for the answer button
-                    answerButton.setOnClickListener(new View.OnClickListener()
+                    /*answerButton.setOnClickListener(new View.OnClickListener()
                     {
+                        //TODO
                         @Override
                         public void onClick(View view)
                         {
@@ -283,16 +283,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             locationUserController.postLocationUser(locationUser);
                             dialog.cancel();
                         }
-                    });
+                    });*/
 
                     //show the question dialog
-                    Marker m = (Marker) marker.getTag();
+/*                    Marker m = (Marker) marker.getTag();
                     if (m != null)
                     {
                         int vraagId = m.getVraag_id();
                         GetQuestion getq = new GetQuestion();
                         getq.execute("http://www.intro.dvc-icta.nl/SpeurtochtApi/web/vraag/" + Integer.toString(vraagId));
-                    }
+                    }*/
 
                     dialog.show();
                 }
@@ -988,6 +988,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return response.toString();
     }
 
+    //Get result of the qr scanner and open the question
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
