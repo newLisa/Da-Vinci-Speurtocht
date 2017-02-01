@@ -371,7 +371,10 @@ public class HomeActivity extends AppCompatActivity
                         Quest quest = new Quest();
                         quest.setId(Integer.parseInt(jo.getString("id")));
                         quest.setName(jo.getString("naam"));
-                        questList.add(quest);
+                        if(!Boolean.parseBoolean(jo.getString("is_deleted")))
+                        {
+                            questList.add(quest);
+                        }
                     }
                 }
             }

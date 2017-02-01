@@ -62,6 +62,7 @@ import java.util.ArrayList;
 
 import nl.davinci.davinciquest.Controllers.HighscoreController;
 import nl.davinci.davinciquest.Controllers.LocationUserController;
+import nl.davinci.davinciquest.Controllers.PolygonController;
 import nl.davinci.davinciquest.Controllers.QuestController;
 import nl.davinci.davinciquest.Controllers.QuestUserController;
 import nl.davinci.davinciquest.Entity.Highscore;
@@ -134,8 +135,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 startButton.hide();
             }
         }
-
-
     }
 
     /**
@@ -154,30 +153,36 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.getUiSettings().setMapToolbarEnabled(false);
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
 
+        //check to see of the device has permission to access location
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED)
         {
             mMap.setMyLocationEnabled(true);
         }
 
+        //define a onclick listener to handle clicks on the markers
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
         {
             @Override
             public boolean onMarkerClick(final com.google.android.gms.maps.model.Marker marker)
             {
+                //get the data from the api
                 LocationUserController locationUserController = new LocationUserController();
                 locationUserList = locationUserController.getLocationUserArray(user_id, quest.getId());
 
+                //create a new marker and store its data in entity
                 Marker markerEntity = new Marker();
                 markerEntity = (Marker) marker.getTag();
                 int answered = 0;
 
+                //is qr and not answered show text
                 if(markerEntity.isQr() && !markerEntity.getAnswered())
                 {
                     markerEntity.getMapMarker().setTitle("Vind en scan de QR code om de vraag te openen");
                     markerEntity.getMapMarker().setSnippet("");
                     return false;
                 }
+                //not in range and not answered show text
                 else if (!isInRange(markerEntity) && !markerEntity.getAnswered())
                 {
                     markerEntity.getMapMarker().setTitle("Loop naar de marker toe om hem te openen");
@@ -185,6 +190,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     return false;
                 }
 
+                //check if clicked marker is anwered
                 for (int i = 0; i < locationUserList.size(); i++)
                 {
                     if (locationUserList.get(i).getLocation_id() == markerEntity.getId())
@@ -199,6 +205,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 if (started )
                 {
+                    //show dialog with marker info
                     final Dialog dialog = new Dialog(MapsActivity.this);
                     dialog.setContentView(R.layout.custom_marker_dialog);
                     dialog.setTitle(marker.getTitle());
@@ -209,12 +216,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     TextView infoTextView = (TextView) dialog.findViewById(R.id.custom_dialog_info);
                     infoTextView.setText(marker.getSnippet());
 
+                    //fill in the questions
                     questionText = (TextView) dialog.findViewById(R.id.QuestionText);
                     answerRadio1 = (RadioButton) dialog.findViewById(R.id.answerRadio1);
                     answerRadio2 = (RadioButton) dialog.findViewById(R.id.answerRadio2);
                     answerRadio3 = (RadioButton) dialog.findViewById(R.id.answerRadio3);
                     answerRadio4 = (RadioButton) dialog.findViewById(R.id.answerRadio4);
 
+                    //hide the question when it has been answered
                     answerButton = (Button) dialog.findViewById(R.id.answerButton);
                     if (answered == 1)
                     {
@@ -225,6 +234,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         answerRadio4.setVisibility(View.GONE);
                         answerButton.setVisibility(View.GONE);
                     }
+                    //onclick listener for the answer button
                     answerButton.setOnClickListener(new View.OnClickListener()
                     {
                         @Override
@@ -236,15 +246,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             int selectedRadiobuttonId = answerRadioGroup.getCheckedRadioButtonId();
                             RadioButton selectedRadioButton = (RadioButton) answerRadioGroup.findViewById(selectedRadiobuttonId);
                             String answer = selectedRadioButton.getText().toString();
+                            //create new location user to store that this user has anserred this question
                             LocationUser locationUser = new LocationUser();
                             locationUser.setUser_id(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt("user_id", 0));
                             locationUser.setLocation_id(currentMarker.getId());
                             locationUser.setQuest_id(quest.getId());
                             LocationUserController locationUserController = new LocationUserController();
 
+                            //if answer is correct
                             if (correctAnswer.equals(answer))
                             {
                                 locationUser.setAnswered_correct("true");
+                                //change marker icon
                                 if (currentMarker.isQr())
                                 {
                                     marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.greenqrsmall));
@@ -266,11 +279,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 }
                             }
                             locationUser.setAnswered("true");
+                            //post the data
                             locationUserController.postLocationUser(locationUser);
                             dialog.cancel();
                         }
                     });
 
+                    //show the question dialog
                     Marker m = (Marker) marker.getTag();
                     if (m != null)
                     {
@@ -286,22 +301,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
+    //gets the location data from api and draws the polygon
     void DrawPolygon()
     {
+        PolygonController polygonController = new PolygonController();
+        ArrayList<nl.davinci.davinciquest.Entity.Polygon> polygons = polygonController.getPolygon(quest.getId());
+
         // Instantiates a new Polygon object and adds points to define a rectangle
-        PolygonOptions rectOptions = new PolygonOptions()
-                .add(new LatLng(51.80185467344209, 4.680642485618591),
-                        new LatLng(51.799180878825474, 4.678325057029724),
-                        new LatLng(51.79726334535511, 4.677445292472839),
-                        new LatLng(51.79665953765794, 4.679537415504456),
-                        new LatLng(51.797814064006644, 4.685030579566956),
-                        new LatLng(51.80013629759001, 4.685245156288147));
+        PolygonOptions rectOptions = new PolygonOptions();
+        for(int i = 0; i < polygons.size(); i++)
+        {
+            rectOptions.add(new LatLng(polygons.get(i).getLat(), polygons.get(i).getLng()));
+        }
+
         rectOptions.strokeColor(Color.RED);
 
         // Get back the mutable Polygon
         Polygon polygon = mMap.addPolygon(rectOptions);
     }
 
+    //updates the score text and completed markers text
     public void updateLabels()
     {
         totalScoreTextView.setText("Score: " + highscore.getScore());
@@ -344,6 +363,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mGoogleApiClient, mLocationRequest, this);
     }
 
+    //adds onclick listerenrs to the qrbutton and startbutton
     public void AddButtonOnClickListeners()
     {
         qrButton = (FloatingActionButton) findViewById(R.id.floatingQRbutton);
@@ -371,6 +391,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
+    //pans and zooms the camera to the currentlocation of user
     public void ZoomCameraToCurrentPosition()
     {
         LatLng currentPos = GetCurrentLocation();
@@ -394,6 +415,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         quest = questController.getQuest(questId);
     }
 
+    //places all the markers on the map, and checks if the user has answered it already and chnge icon accordingly
     public void PlaceMarkers()
     {
         mMap.clear();
@@ -405,6 +427,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         {
             for (int i = 0; i < markerLocations.size(); i++)
             {
+                //fillin the marker data on the marker options
                 MarkerOptions options = new MarkerOptions();
                 LatLng markerPos = new LatLng(markerLocations.get(i).getLatitude(),markerLocations.get(i).getLongitude());
                 options.position(markerPos);
@@ -413,6 +436,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Marker markerEntity = markerLocations.get(i);
                 if (started)
                 {
+                    //check if user has answered question
                     boolean found = false;
                     for (int r = 0; r < locationUserList.size(); r++)
                     {
@@ -464,6 +488,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     LatLng currentPos = GetCurrentLocation();
 
+                    //show the marker if the user is in range
                     float[] result = new float[1];
                     Location.distanceBetween(currentPos.latitude,currentPos.longitude,markerPos.latitude,markerPos.longitude,result);
                     if (result[0] > maxDistanceVisibleMarker && !markerLocations.get(i).isVisible() && !markerEntity.getAnswered())
@@ -486,8 +511,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         options.visible(false);
                     }
                 }
-
-
+                //add marker to the map
                 com.google.android.gms.maps.model.Marker m = mMap.addMarker(options);
                 m.setTag(markerEntity);
 
@@ -503,6 +527,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    //runs when the device has detected that the user has changed its location
     @Override
     public void onLocationChanged(Location location)
     {
@@ -541,6 +566,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    //shows the dialog that contains the marker question
     void ShowMarkerQuestion(final Marker marker)
     {
         for (int g = 0; g < markerLocations.size(); g++)
@@ -659,29 +685,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    //Sets  marker at the users current location
-   /* public void SetMarkerAtCurrentLocation()
-    {
-        //check permissions
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED)
-        {
-            //store last known location
-            Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
-            //create a new marker
-            MarkerOptions options = new MarkerOptions();
-            LatLng pos = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
-            options.position(pos);
-            options.title("marker #" + markerCount);
-            options.draggable(true);
-            options.snippet("dit is een snippet");
-            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.redmarkersmall));
-            mMap.addMarker(options);
-            markerCount++;
-        }
-    }*/
-
+    //returns the latlng coordinates of the devices current location
     public LatLng GetCurrentLocation()
     {
         LatLng pos = null;
@@ -743,6 +747,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .build();
     }
 
+    //Async task to get the speurtocht data
     public class GetSpeurtochtJsonData extends AsyncTask<String, String, ArrayList>
     {
         @Override
@@ -830,6 +835,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    //Async task to get the tocht user data
     public class PostKoppelTochtUser extends AsyncTask<String , Void ,String> {
         String server_response;
 
@@ -885,6 +891,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    //Async task to get the question data
     public class GetQuestion extends AsyncTask<String, String, ArrayList<String>>
     {
         @Override
@@ -1000,6 +1007,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    //returns a single marker based on id
     public Marker getSingleMarker(int markerId)
     {
         for (int i = 0; i < markerLocations.size(); i++)
@@ -1012,6 +1020,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return null;
     }
 
+    //return true when a marker is in range
     public Boolean isInRange(Marker endPoint)
     {
         LatLng currentPos = GetCurrentLocation();

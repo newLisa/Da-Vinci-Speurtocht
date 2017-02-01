@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
  * Created by Vincent on 30-11-2016.
  */
 
+//shows the davinci quest logo before the app starts
 public class SplashActivity extends AppCompatActivity
 {
 
